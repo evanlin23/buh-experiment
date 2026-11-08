@@ -118,25 +118,34 @@ class RevealShort:
         """Spin by the main shape's own symmetry angle over the whole loop, so the last frame
         is the first frame again (a triangle turns exactly 120 degrees)."""
         r = self.spec["rule"]
-        if r["type"] != "polygon" or not self.spec.get("spin", True):
+        if r["type"] != "polygon":                   # IFS shapes sway gently about their base, like a plant in wind
+            cyc = max(1, round(self.duration / 4))
+            return self.spec.get("sway", 0.07) * math.sin(2 * math.pi * cyc * t / self.duration)
+        if not self.spec.get("spin", True):
             return 0.0
         return 2 * math.pi / r["corners"] * t / self.duration
+
+    @property
+    def pivot(self):
+        return (CX, CY) if self.spec["rule"]["type"] == "polygon" else tuple(self.main["pts"][0])
 
     def rot(self, p, th):
         if th == 0:
             return p
         c, s_ = math.cos(th), math.sin(th)
-        x, y = p[0] - CX, p[1] - CY
-        return (CX + c * x - s_ * y, CY + s_ * x + c * y)
+        px, py = self.pivot
+        x, y = p[0] - px, p[1] - py
+        return (px + c * x - s_ * y, py + s_ * x + c * y)
 
     def density(self, shape, n, th=0.0):
         W, H, S = self.v.W, self.v.H, self.S
         if th:
             P = shape["pts"][:n + 1]
             c, s_ = math.cos(th), math.sin(th)
-            x, y = P[:, 0] - CX, P[:, 1] - CY
-            ix = np.clip(((CX + c * x - s_ * y) * S).astype(np.int64), 0, W - 1)
-            iy = np.clip(((CY + s_ * x + c * y) * S).astype(np.int64), 0, H - 1)
+            px, py = self.pivot
+            x, y = P[:, 0] - px, P[:, 1] - py
+            ix = np.clip(((px + c * x - s_ * y) * S).astype(np.int64), 0, W - 1)
+            iy = np.clip(((py + s_ * x + c * y) * S).astype(np.int64), 0, H - 1)
             flat = iy * W + ix
         else:
             flat = shape["flat"][:n + 1]
@@ -209,27 +218,34 @@ class RevealShort:
                     f.circle(x, y, 15, C["lav"], 3, 0.8 * wt)
                     f.dot(x, y, 3.5, C["white"], 0.9 * wt)
         # the first jumps, drawn one by one
-        if t < self.T_PAY and self.main["targets"] is not None:
+        if t < self.T_PAY:
             pts, idx, tg = self.main["pts"], self.main["idx"], self.main["targets"]
             n = self.count(t)
             p_hi = int(np.searchsorted(self.TS, t, side="right"))
             for p in range(n + 1, min(p_hi, 40)):
                 u = (t - self.TS[p]) / max(1e-6, self.TA[p] - self.TS[p])
                 e = 1 - (1 - u) ** 3
-                (x0, y0), (x1, y1), (cx, cy) = (self.rot(q, th) for q in (pts[p - 1], pts[p], tg[idx[p]]))
-                f.line([(x0, y0), (cx, cy)], C["lav"], 2, 0.3 * min(1, u * 6))
+                (x0, y0), (x1, y1) = (self.rot(q, th) for q in (pts[p - 1], pts[p]))
+                if tg is not None:                       # polygon rules: show the corner being aimed at
+                    cx, cy = self.rot(tg[idx[p]], th)
+                    f.line([(x0, y0), (cx, cy)], C["lav"], 2, 0.3 * min(1, u * 6))
                 xe, ye = x0 + (x1 - x0) * e, y0 + (y1 - y0) * e
                 f.line([(x0, y0), (xe, ye)], C["core"], 4, 0.8 * min(1, u * 6))
                 f.dot(xe, ye, 7, C["core"], min(1, u * 6))
-            for p in range(1, 33):
+            for p in range(1, 33):                       # a pulse where each early jump lands (or aims)
                 v = (t - self.TS[p]) / 0.4
                 if 0 <= v < 1:
-                    cx, cy = self.rot(tg[idx[p]], th)
-                    f.circle(cx, cy, 16 + 46 * v, C["lav"], 4, (1 - v) * min(1, v * 8))
+                    cx, cy = self.rot(tg[idx[p]] if tg is not None else pts[p], th)
+                    if tg is not None:
+                        f.circle(cx, cy, 16 + 46 * v, C["lav"], 4, (1 - v) * min(1, v * 8))
+                    else:                                # IFS: no corners, so make each landing itself visible
+                        f.circle(cx, cy, 16 + 130 * v, C["lav"], 5, (1 - v) * min(1, v * 8))
+                        f.flash = max(f.flash, 0.18 * (1 - v))
         # start ring on frame 1, payoff flash + ring
         if 0 < t < 0.5:
             sx, sy = self.rot(self.main["pts"][0], th)
-            f.circle(sx, sy, 16 + 130 * t / 0.5, C["white"], 4, 0.9 * (1 - t / 0.5))
+            f.circle(sx, sy, 16 + 220 * t / 0.5, C["white"], 5, 0.9 * (1 - t / 0.5))
+            f.flash = max(f.flash, 0.3 * (1 - t / 0.5))
         if 0 <= t - self.T_PAY < 1.2:
             f.flash = math.exp(-(t - self.T_PAY) * 4)
             vv = (t - self.T_PAY) / 1.2
