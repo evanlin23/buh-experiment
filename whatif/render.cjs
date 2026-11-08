@@ -42,6 +42,12 @@ function args() {
   return o;
 }
 
+function pythonBin() {
+  // $PYTHON, else the repo's .venv, else python3. The audio scripts need numpy and scipy.
+  const venv = path.join(__dirname, "..", ".venv", "bin", "python");
+  return process.env.PYTHON || (fs.existsSync(venv) ? venv : "python3");
+}
+
 async function openScene(browser, scene, preview) {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: preview ? 0.5 : 1 });
   page.on("pageerror", (e) => { console.error("scene error:", e.message); process.exit(1); });
@@ -99,8 +105,9 @@ async function renderRange(browser, o, k0, k1, fps, segPath, w, h) {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "whatif-remix-"));
     const cues = path.join(tmp, "cues.json"), wav = path.join(tmp, "mix.wav");
     fs.writeFileSync(cues, JSON.stringify({ duration: meta.duration, offset: 0, cues: meta.cues }));
-    const py = fs.existsSync(path.join(__dirname, "..", ".venv", "bin", "python")) ? path.join(__dirname, "..", ".venv", "bin", "python") : "python3";
+    const py = pythonBin();
     execFileSync(py, ["-I", o.audio, cues, wav], { stdio: "inherit" });
+    fs.mkdirSync(path.dirname(path.resolve(o.out)), { recursive: true });
     const out = path.resolve(o.out) === path.resolve(o.remix) ? path.join(tmp, "out.mp4") : o.out;
     execFileSync("ffmpeg", ["-v", "error", "-y", "-i", o.remix, "-i", wav, "-map", "0:v", "-map", "1:a",
       "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", out]);
@@ -135,7 +142,7 @@ async function renderRange(browser, o, k0, k1, fps, segPath, w, h) {
   if (o.audio) {
     const cues = path.join(tmp, "cues.json"), wav = path.join(tmp, "mix.wav");
     fs.writeFileSync(cues, JSON.stringify({ duration: n / fps, offset: kFrom / fps, cues: meta.cues }));
-    const py = fs.existsSync(path.join(__dirname, "..", ".venv", "bin", "python")) ? path.join(__dirname, "..", ".venv", "bin", "python") : "python3";
+    const py = pythonBin();
     try {
       execFileSync(py, ["-I", o.audio, cues, wav], { stdio: "inherit" });
     } catch (e) {
