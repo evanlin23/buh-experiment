@@ -101,13 +101,50 @@ Steps can also be things rather than numbers: give `quantity.values` plus `quant
 
 The backlog of vetted ideas lives in `research/backlog.md`.
 
+## Formats: rotate them
+
+Three templates, each with its own structure, motion and sound. Only the house brand is shared: the navy ground, the two-line headline, the @packedbuh mark. YouTube allows a consistent look; what it flags is content with little variation.
+
+| Template (`"template"`) | Hit family | What it looks like | Sound | Example specs |
+|---|---|---|---|---|
+| `ladder` (default) | Scale shock | A bar or column climbs past true-size landmarks on a log-zoom camera | Pitch ladder on the beat | `paper_12_folds`, `ocean_glasses`, `sky_weight`, `iphone_stack`, `rumor_doubles` |
+| `race` | Physics race / convergence | Balls race down ramps with exact frictionless physics, with a live timer and leaderboard; then a twist act (balls dropped from different heights all arrive together) | A click per fixed distance travelled (faster = more clicks), finish bells | `fastest_ramp` |
+| `reveal` | Famous phenomenon | A random rule iterated a million times resolves into a shape: chaos game on a polygon, or an IFS such as the Barnsley fern | A pluck per early jump, panned to where it lands, then a granular shimmer; the shape spins by its own symmetry | `chaos_game`, `barnsley_fern` (draft) |
+
+Rotation rules:
+- Never post two Shorts of the same template back to back.
+- At three a day, aim for one of each template every day, or for 50% ladder / 25% race / 25% reveal across the week while the race and reveal backlogs are thinner.
+- Rotate the colour accent too. Ladder uses warm peach; race uses a multi-colour cast; reveal uses magenta or mint.
+
+### `race` spec
+
+```jsonc
+{"template": "race", "hook": ["WHICH RAMP", "IS FASTEST?"], "tauto_label": "5 BALLS, 5 HEIGHTS, ONE CURVE",
+ "race": {"r": 260, "seconds": 2.6, "A": [132, 590], "click_px": 55,       // cycloid arch radius, cycloid time, start point
+          "curves": [{"kind": "straight|circle|dip|cycloid", "name": "CYCLOID", "color": "warm", "depth": 0.6}]},
+ "acts": [{"type": "race"}, {"type": "payoff", "headline": [...], "beats": 2},
+          {"type": "card", "headline": [...], "beats": 3, "replay": true},
+          {"type": "tauto", "headline": [...], "balls": 5}, {"type": "payoff", "headline": [...], "size": "big"},
+          {"type": "rewind", "beats": 4}]}
+```
+
+### `reveal` spec
+
+```jsonc
+{"template": "reveal", "color": "pink", "doublings": 20,
+ "rule": {"type": "polygon", "corners": 3, "ratio": 0.5, "norepeat": false, "center": false},
+ //   or {"type": "ifs", "maps": [[a, b, c, d, e, f, probability], ...]}
+ "hook": [...], "hook_beats": 5, "counter_label": "JUMPS", "answer": [...], "payoff_beats": 2,
+ "bonus": [{"rule": {...}, "lines": ["5 CORNERS", "JUMP 62% OF THE WAY"], "chord": "G2 D3 G3 B3 D4"}]}
+```
+
 ## Staying on the right side of YouTube's "inauthentic content" rule at three a day
 
 The rule targets uploads with little variation: the same situation with the same outcome, over and over. Three Shorts a day from one template is exactly what it looks for unless every upload is a distinct idea with its own payoff. To guard against that:
 
 - `make` blocks repeated topics, titles and slugs.
 - Rotate the hit families: scale shock, famous phenomenon, convergence, real-life sim.
-- Add a second and third template so the channel isn't one visual format:
-  - a particle/fractal "reveal" template (the chaos-game prototype already works);
-  - a physics-sim template (tautochrone, traffic waves).
+- Rotate the three templates (see Formats above), and add more over time:
+  - a rectangle/area view for the A4-doubling idea;
+  - a flow or particle sim, for traffic waves.
 - Don't publish near-identical follow-ups. The data shows they fall 10–100× anyway.

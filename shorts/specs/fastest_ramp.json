@@ -1,0 +1,130 @@
+{
+  "template": "race",
+  "slug": "fastest_ramp",
+  "topic": "brachistochrone and tautochrone (cycloid)",
+  "bpm": 120,
+  "hook": [
+    "WHICH RAMP",
+    "IS FASTEST?"
+  ],
+  "tauto_label": "5 BALLS, 5 HEIGHTS, ONE CURVE",
+  "race": {
+    "r": 260,
+    "seconds": 2.6,
+    "A": [
+      132,
+      590
+    ],
+    "click_px": 55,
+    "curves": [
+      {
+        "kind": "straight",
+        "name": "STRAIGHT LINE",
+        "color": "lav"
+      },
+      {
+        "kind": "circle",
+        "name": "CIRCLE",
+        "color": "sky"
+      },
+      {
+        "kind": "dip",
+        "name": "DEEP DIP",
+        "color": "pink",
+        "depth": 0.6
+      },
+      {
+        "kind": "cycloid",
+        "name": "CYCLOID",
+        "color": "warm"
+      }
+    ]
+  },
+  "acts": [
+    {
+      "type": "race",
+      "tail_beats": 0.5
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "THE CURVE WINS",
+        "NOT THE SHORTEST PATH"
+      ],
+      "beats": 2
+    },
+    {
+      "type": "card",
+      "headline": [
+        "IT'S CALLED A CYCLOID",
+        "AND IT HIDES A SECOND TRICK"
+      ],
+      "beats": 3,
+      "replay": true
+    },
+    {
+      "type": "tauto",
+      "headline": [
+        "DROP 5 BALLS ON IT",
+        "FROM DIFFERENT HEIGHTS"
+      ],
+      "balls": 5,
+      "lead_beats": 0.5,
+      "tail_beats": 0.25
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "THEY ALL ARRIVE",
+        "AT THE SAME INSTANT"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "cover": {
+    "t": 1.9
+  },
+  "package": {
+    "title": "Which Ramp Is Fastest?",
+    "alt_titles": [
+      "The Shortest Path Is NOT The Fastest",
+      "The Curve That Breaks Your Intuition"
+    ],
+    "description": [
+      "Four ramps, same start, same finish, no friction. The straight line is the shortest path, but it isn't the fastest.",
+      "",
+      "The winner is a cycloid: the curve traced by a point on a rolling wheel. It's the brachistochrone, the fastest possible slide under gravity (Johann Bernoulli's 1696 challenge, solved by Newton, Leibniz and the Bernoullis).",
+      "",
+      "Its second trick: release balls from ANY height on a cycloid and they all reach the bottom at exactly the same moment. That makes it the tautochrone too (Huygens, 1659), with time to the bottom T = π√(r/g) whatever the start.",
+      "",
+      "Every ball here moves by exact frictionless physics; every click is a fixed distance travelled."
+    ],
+    "question": "Which ramp did you pick? 👇",
+    "hashtags": [
+      "physics",
+      "math",
+      "satisfying",
+      "science"
+    ],
+    "pinned": "Same curve, two miracles: fastest descent (brachistochrone) and equal-time descent (tautochrone). Both are a cycloid 🎢",
+    "tags": [
+      "brachistochrone",
+      "tautochrone",
+      "cycloid",
+      "fastest ramp",
+      "physics shorts"
+    ],
+    "tiktok": "Which ramp is fastest? The straight line loses 🎢 #physics #math #science",
+    "reels": "The shortest path isn't the fastest. Then the cycloid does something even stranger 🎢 Follow @packedbuh for more #physics #math",
+    "sources": [
+      "Brachistochrone curve: en.wikipedia.org/wiki/Brachistochrone_curve",
+      "Tautochrone curve: en.wikipedia.org/wiki/Tautochrone_curve (T = π√(r/g))"
+    ]
+  }
+}

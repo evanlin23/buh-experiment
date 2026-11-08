@@ -10,13 +10,15 @@ Research and tooling for a YouTube Shorts channel in the "satisfying math/physic
 | `docs/PIPELINE.md` | **Start here:** the 3-a-day workflow, the QA gate, and the spec format |
 | `shorts/make.py` | Spec → video + cover + QA + upload packaging, in about 75 s |
 | `shorts/specs/*.json` | One file per Short; `published.json` logs what's live |
-| `shorts/ladder_short.py` | The data-driven scale-ladder template |
+| `shorts/ladder_short.py` | Format 1, `ladder`: a bar climbs past true-size landmarks |
+| `shorts/race_short.py` | Format 2, `race`: balls race down ramps with exact physics |
+| `shorts/reveal_short.py` | Format 3, `reveal`: a random rule iterated a million times reveals a shape |
 | `shorts/engine.py` | Neon compositor, synth and mixer, parallel renderer |
 | `shorts/ladder.py`, `shorts/units.py` | True-size landmark icons, log camera, number formatting |
 | `shorts/qa.py`, `shorts/package.py` | The quality gate and the upload-kit generator |
 | `research/` | Niche analysis, idea audit, pacing study |
 | `tools/av_analyze.py`, `tools/pacing.py` | Measure any Short (yours or a competitor's) |
-| `prototype/chaos_game_short.py` | Standalone prototype for a future "reveal" template |
+| `prototype/chaos_game_short.py` | The original standalone prototype, superseded by the `reveal` template |
 
 ## Setup
 

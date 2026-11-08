@@ -30,9 +30,17 @@ import package  # noqa: E402
 import qa  # noqa: E402
 from engine import DEFAULT_HANDLE, Video, render_stills, render_video  # noqa: E402
 from ladder_short import LadderShort  # noqa: E402
+from race_short import RaceShort  # noqa: E402
+from reveal_short import RevealShort  # noqa: E402
+
+TEMPLATES = {"ladder": LadderShort, "race": RaceShort, "reveal": RevealShort}
+
+
+def scene_for(v, spec):
+    return TEMPLATES[spec.get("template", "ladder")](v, spec)
 
 PUBLISHED = os.path.join(HERE, "specs", "published.json")
-SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "units.py"]
+SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "race_short.py", "reveal_short.py", "units.py"]
 
 
 def load(paths):
@@ -90,10 +98,10 @@ def make_one(path, spec, args):
     slug = spec["slug"]
     out = os.path.join(args.out, slug)
     os.makedirs(out, exist_ok=True)
-    factory = lambda v: LadderShort(v, spec)  # noqa: E731
+    factory = lambda v: scene_for(v, spec)  # noqa: E731
     t0 = time.time()
     with tempfile.TemporaryDirectory() as tmp:
-        scene = LadderShort(Video(True, args.handle), spec)
+        scene = scene_for(Video(True, args.handle), spec)
         stills = render_stills(factory, tmp, scene.key_times, preview=True, handle=args.handle)
         contact_sheet(stills, os.path.join(out, "sheet.png"))
         if args.review:
@@ -111,7 +119,7 @@ def make_one(path, spec, args):
                      log=lambda s: print(f"[{slug}] {s.strip()}", flush=True))
         rendered = True
     res = qa.run(video, os.path.join(out, "qa.json"))
-    full = LadderShort(Video(args.preview, args.handle), spec)
+    full = scene_for(Video(args.preview, args.handle), spec)
     package.build(spec, full, out, "video.mp4", res)
     json.dump(dict(slug=slug, spec=os.path.relpath(path, HERE), fingerprint=fp, built=time.strftime("%Y-%m-%d %H:%M"),
                    qa_ok=res["ok"]), open(man_path, "w"), indent=1)

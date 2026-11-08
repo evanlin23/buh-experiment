@@ -18,6 +18,16 @@ Status: **built** means a spec exists in `shorts/specs/`; **next** means it's op
 | Light ladder: 1 ns to the Sun | OPEN (borderline; 3 recent, ≤ 18K) | **next** (length) | 1 ns = 30 cm … 499 s = the Sun | c exact |
 | The planets DON'T fit between Earth and the Moon (most of the month) | CROWDED, but live demand (537K in 3 weeks) | **next**, as a correction twist | They fit only near apogee | Surface-to-surface gap 376,292 km at mean distance |
 
+## Race and reveal formats
+
+| Idea | Template | Status | Notes |
+|---|---|---|---|
+| Which ramp is fastest? (brachistochrone + tautochrone twist) | race | **built** `fastest_ramp` | Brachistochrone alone is crowded, and MathMango's "Which Slide Is Fastest?" (Oct 16) got 659K. The tautochrone twist is the differentiator; consider the alternate title "The Fastest Ramp Has A Second Secret" |
+| Chaos game, Sierpinski triangle plus 3 variants | reveal | **built** `chaos_game` | PROVEN-OPEN: the sonified version has 3.75M; recent copies under 6K |
+| Barnsley fern | reveal | **draft** `barnsley_fern` | Needs a market check |
+| Which launch angle throws farthest? (45° wins; 30° and 60° tie) | race (needs a projectile mode) | idea | Needs a market check |
+| Sierpinski carpet, Lévy C curve, Koch snowflake (IFS) | reveal | idea | Needs a market check |
+
 ## Don't make (saturated or crowded, checked 8 Nov)
 
 LEGO tower, Earth's motion while you watch, chess games vs atoms, password cracking, ants vs humans, human tower to the Moon, walking to the Moon, hair growth, a billion seconds, falling through Earth, all humans in one cube, the doubling penny, heartbeats, lily pads, Earth's history in 24 h, DNA length, rice on a chessboard, 52!, bacteria outweighing Earth, how many people have ever lived, Caesar's last breath, stars vs sand.

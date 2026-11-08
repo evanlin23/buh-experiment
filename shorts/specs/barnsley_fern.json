@@ -1,0 +1,30 @@
+{
+  "template": "reveal",
+  "slug": "barnsley_fern",
+  "status": "draft: facts standard (Barnsley 1988); needs a market check before upload",
+  "topic": "Barnsley fern IFS",
+  "bpm": 120,
+  "color": "mint",
+  "doublings": 20,
+  "rule": {"type": "ifs", "maps": [[0, 0, 0, 0.16, 0, 0, 0.01], [0.85, 0.04, -0.04, 0.85, 0, 1.6, 0.85],
+                                   [0.2, -0.26, 0.23, 0.22, 0, 1.6, 0.07], [-0.15, 0.28, 0.26, 0.24, 0, 0.44, 0.07]]},
+  "hook": ["4 RULES, PICKED AT RANDOM", "WHAT DO A MILLION DOTS DRAW?"],
+  "hook_beats": 5,
+  "counter_label": "DOTS",
+  "answer": ["A FERN", "FROM 4 LINES OF MATH"],
+  "payoff_beats": 2,
+  "bonus": [],
+  "cover": {"t": 10.2},
+  "package": {
+    "title": "4 Random Rules Draw A Fern",
+    "alt_titles": ["A Million Random Dots Make A Fern"],
+    "description": ["Four simple rules, each a stretch-and-turn of the plane, picked at random with fixed odds (1%, 85%, 7%, 7%). Apply one to a dot, then another, a million times.", "", "The dots draw a fern: Michael Barnsley's iterated function system (1988)."],
+    "question": "Does it look real to you? 👇",
+    "hashtags": ["math", "fractal", "satisfying", "nature"],
+    "pinned": "The 85% rule makes each frond a smaller copy of the whole fern; the other three draw the stem and the first two leaves 🌿",
+    "tags": ["barnsley fern", "fractal", "chaos game", "math shorts"],
+    "tiktok": "4 random rules. A million dots. A fern 🌿 #math #fractal",
+    "reels": "A million random dots draw a fern 🌿 Follow @packedbuh for more #math #fractal",
+    "sources": ["Barnsley fern: en.wikipedia.org/wiki/Barnsley_fern", "Barnsley, M. Fractals Everywhere (1988)"]
+  }
+}
