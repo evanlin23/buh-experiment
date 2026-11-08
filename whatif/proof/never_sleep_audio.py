@@ -32,6 +32,17 @@ def env(n, attack=0.002, decay=30.0):
     return np.minimum(1, t / attack) * np.exp(-t * decay)
 
 
+def room_reverb(m, wet):
+    """Same short room as Mixer.master (1.4 s noise IR, 0.3 s decay), applied in place to what is in the mix now."""
+    from scipy.signal import fftconvolve
+    t = np.arange(int(1.4 * SR)) / SR
+    for ch, seed in ((m.L, 1), (m.R, 2)):
+        ir = np.random.default_rng(seed).standard_normal(len(t)) * np.exp(-t / 0.3)
+        ir = lfilter([0.3], [1, -0.7], ir)
+        ir /= np.sqrt((ir ** 2).sum())
+        ch += fftconvolve(ch, ir)[:m.n] * wet
+
+
 def main(cues_path, out):
     spec = json.load(open(cues_path))
     dur, off = spec["duration"], spec["offset"]
@@ -129,8 +140,11 @@ def main(cues_path, out):
     m.R += room[::-1]
 
     vo = next((c for c in spec["cues"] if c["type"] == "vo"), None)
+    # The room reverb belongs to the bells, plucks and paper only. The narration goes on afterwards, dry,
+    # so the narrator sounds close to the mic rather than in a hall.
+    room_reverb(m, 0.08 if vo else 0.18)
     if vo:
-        # Narration on top: the bed and foley sit 18 dB under the voice (RMS) and duck a further ~5 dB while it speaks.
+        # Narration on top: the bed and foley sit 19 dB under the voice (RMS) and duck a further ~5 dB while it speaks.
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), vo["src"])
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
                              capture_output=True, check=True).stdout
@@ -143,13 +157,13 @@ def main(cues_path, out):
         vo_env[i0:i0 + len(ev)] = ev
         bed = np.sqrt(np.mean(((m.L + m.R) / 2) ** 2)) + 1e-12
         speech = np.sqrt(np.mean(v[ev > 0.25] ** 2))
-        g = speech * 10 ** (-18 / 20) / bed
+        g = speech * 10 ** (-19 / 20) / bed
         duck = g * (1 - 0.45 * vo_env)
         m.L *= duck
         m.R *= duck
         m.L[i0:i0 + len(v)] += v
         m.R[i0:i0 + len(v)] += v
-    m.master(out, wet=0.12 if vo else 0.18)
+    m.master(out, wet=0.0)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Channel avatar</title>
+<link rel="stylesheet" href="../lib/stage.css">
+<style>
+  /* 800 x 800, shown by YouTube as a circle (98 px on desktop). Keep everything inside the circle. */
+  #stage { width: 800px; height: 800px; }
+  .layer { width: 800px; height: 800px; transform-origin: 400px 400px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../lib/stage.js"></script>
+<script>
+const { svg, html } = PT;
+window.SCENE = { duration: 1, fps: 24, width: 800, height: 800 };
+const stage = document.getElementById("stage");
+PT.defs(stage);
+const L = (extra = {}) => svg("svg", { width: 800, height: 800, viewBox: "0 0 800 800" }, html("div", { class: "layer", style: extra }, stage));
+const d = svg("defs", {}, svg("svg", { width: 0, height: 0, style: "position:absolute" }, stage));
+d.innerHTML = `<radialGradient id="lamp" cx="30%" cy="26%" r="75%"><stop offset="0" stop-color="#ffcf8a" stop-opacity="0.55"/><stop offset="0.5" stop-color="#ff9e48" stop-opacity="0.12"/><stop offset="1" stop-color="#ff9e48" stop-opacity="0"/></radialGradient>`;
+
+// night card ground with the wallpaper moons
+const g = L();
+svg("rect", { x: -40, y: -40, width: 880, height: 880, fill: "#263457", filter: "url(#card0)" }, g);
+svg("rect", { x: -40, y: -40, width: 880, height: 880, fill: "url(#moons)", opacity: 0.75 }, g);
+
+// three paper stars on threads, inside the circle
+const s = L();
+const stars = [[250, 118, 70, 20, 3], [560, 118, 40, 16, 4], [618, 160, 120, 13, 5]].map(([x, top, len, r, seed]) => PT.hangingStar(s, { x, top, len, r, seed }));
+stars.forEach((f, i) => f(0.6 + i));
+
+// the question mark: one thick strip of tomato card, the dot is a brass split pin
+const q = L();
+const qg = svg("g", { filter: "url(#card3)" }, q);
+svg("path", { d: "M 268 318 C 268 196 372 150 440 158 C 528 168 566 236 548 304 C 532 366 470 384 438 418 C 412 446 404 476 404 520",
+  fill: "none", stroke: "#e4572e", "stroke-width": 104, "stroke-linecap": "round", "stroke-linejoin": "round" }, qg);
+svg("path", { d: "M 268 318 C 268 196 372 150 440 158 C 528 168 566 236 548 304 C 532 366 470 384 438 418 C 412 446 404 476 404 520",
+  fill: "none", stroke: "#f6ecd9", "stroke-width": 6, "stroke-dasharray": "2 16", "stroke-linecap": "round", opacity: 0.55, transform: "translate(-2 -3)" }, qg);
+const pin = svg("g", { filter: "url(#lift)" }, q);
+svg("circle", { cx: 404, cy: 668, r: 56, fill: "url(#brass)" }, pin);
+svg("circle", { cx: 404, cy: 668, r: 56, fill: "none", stroke: "#8a6420", "stroke-width": 3, opacity: 0.6 }, pin);
+svg("path", { d: "M 377 674 L 431 662", stroke: "#6b4a14", "stroke-width": 7, "stroke-linecap": "round" }, pin);
+
+// light
+svg("rect", { x: 0, y: 0, width: 800, height: 800, fill: "url(#lamp)" }, L({ mixBlendMode: "screen" }));
+html("div", { class: "vignette", style: { background: "radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 52%, rgba(5,6,16,0.5) 72%)" } }, stage);
+const gr = PT.grain(stage, 0.2);
+window.seek = (t) => gr(t);
+window.seek(0);
+</script>
+</body>
+</html>

@@ -10,6 +10,7 @@
  * Usage:
  *   node render.cjs SCENE.html OUT.mp4 [--jobs 3] [--preview] [--from S] [--to S] [--audio script.py]
  *   node render.cjs SCENE.html OUT_DIR --stills 1.5,4,9.2
+ *   node render.cjs SCENE.html OUT.mp4 --audio script.py --remix RENDERED.mp4   (new mix, same frames: no re-render)
  *
  * Each worker renders a contiguous frame range into its own x264 segment;
  * the segments are concatenated losslessly, then the audio script's WAV is muxed in.
@@ -31,6 +32,7 @@ function args() {
     else if (k === "--from") o.from = +a[++i];
     else if (k === "--to") o.to = +a[++i];
     else if (k === "--audio") o.audio = a[++i];
+    else if (k === "--remix") o.remix = a[++i];
     else throw new Error("unknown flag " + k);
   }
   if (!o.scene || !o.out) {
@@ -89,6 +91,24 @@ async function renderRange(browser, o, k0, k1, fps, segPath, w, h) {
     return;
   }
   await page.close();
+
+  if (o.remix) {
+    // Re-run only the sound: cues come from the scene, pictures from an earlier render of it.
+    if (!o.audio) throw new Error("--remix needs --audio");
+    await browser.close();
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "whatif-remix-"));
+    const cues = path.join(tmp, "cues.json"), wav = path.join(tmp, "mix.wav");
+    fs.writeFileSync(cues, JSON.stringify({ duration: meta.duration, offset: 0, cues: meta.cues }));
+    const py = fs.existsSync(path.join(__dirname, "..", ".venv", "bin", "python")) ? path.join(__dirname, "..", ".venv", "bin", "python") : "python3";
+    execFileSync(py, ["-I", o.audio, cues, wav], { stdio: "inherit" });
+    const out = path.resolve(o.out) === path.resolve(o.remix) ? path.join(tmp, "out.mp4") : o.out;
+    execFileSync("ffmpeg", ["-v", "error", "-y", "-i", o.remix, "-i", wav, "-map", "0:v", "-map", "1:a",
+      "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", out]);
+    if (out !== o.out) fs.copyFileSync(out, o.out);
+    fs.rmSync(tmp, { recursive: true, force: true });
+    console.log(`remixed ${o.out} in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+    return;
+  }
 
   const fps = meta.fps;
   const kFrom = Math.round((o.from ?? 0) * fps), kTo = Math.round((o.to ?? meta.duration) * fps);

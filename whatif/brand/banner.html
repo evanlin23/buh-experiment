@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Channel banner</title>
+<link rel="stylesheet" href="../lib/stage.css">
+<style>
+  /* 2560 x 1440 upload. Visible everywhere: the centre 1546 x 423 (x 507-2053, y 508-931).
+     Desktop shows the full-width strip y 508-931; TV shows the whole canvas. */
+  #stage { width: 2560px; height: 1440px; }
+  .layer { width: 2560px; height: 1440px; transform-origin: 1280px 720px; }
+  .name { font-family: "Fraunces"; font-weight: 900; font-size: 150px; letter-spacing: -0.02em; color: #1c1f2e; line-height: 1;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 6px 8px rgba(60, 40, 20, 0.28); }
+  .tag { font-family: "Fraunces"; font-style: italic; font-weight: 600; font-size: 56px; color: #3b2a22; }
+  .tag em { color: #e4572e; }
+  .sched { font-family: "Bricolage"; font-weight: 700; font-size: 26px; letter-spacing: 0.2em; text-transform: uppercase; color: #6d4a2c; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../lib/stage.js"></script>
+<script>
+/* Change these two lines for another channel name or line. */
+const CHANNEL = "Buh Essays";
+const TAGLINE = "Big <em>what-ifs</em>, told in paper.";
+const SCHEDULE = ""; // e.g. "New what-if every Sunday" once there is a schedule
+
+const { svg, html, puppet } = PT;
+const W = 2560, H = 1440, SAFE = { x: 507, y: 508, w: 1546, h: 423 };
+window.SCENE = { duration: 1, fps: 24, width: W, height: H };
+const stage = document.getElementById("stage");
+PT.defs(stage);
+const L = (extra = {}) => svg("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}` }, html("div", { class: "layer", style: extra }, stage));
+const d = svg("defs", {}, svg("svg", { width: 0, height: 0, style: "position:absolute" }, stage));
+d.innerHTML = `
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="0.25">
+    <stop offset="0" stop-color="#141c38"/><stop offset="0.38" stop-color="#2b3a66"/><stop offset="0.62" stop-color="#6d5a9c"/>
+    <stop offset="0.84" stop-color="#e98f7a"/><stop offset="1" stop-color="#ffd59a"/></linearGradient>
+  <radialGradient id="sunG"><stop offset="0" stop-color="#fff3c9" stop-opacity="0.9"/><stop offset="1" stop-color="#ffb46b" stop-opacity="0"/></radialGradient>
+  <radialGradient id="moonG"><stop offset="0" stop-color="#e9efff" stop-opacity="0.5"/><stop offset="1" stop-color="#e9efff" stop-opacity="0"/></radialGradient>`;
+
+// sky: night on the left, dusk on the right
+const S = L();
+svg("rect", { x: -40, y: -40, width: W + 80, height: H + 80, fill: "url(#sky)", filter: "url(#card0)" }, S);
+svg("circle", { cx: 330, cy: 380, r: 300, fill: "url(#moonG)" }, S);
+const moon = svg("g", { filter: "url(#card1)" }, S);
+svg("circle", { cx: 330, cy: 380, r: 86, fill: "#f3e7c4" }, moon);
+[[300, 352, 15], [366, 404, 11], [334, 430, 8]].forEach(([x, y, r]) => svg("circle", { cx: x, cy: y, r, fill: "#e0cfa2" }, moon));
+svg("circle", { cx: 2240, cy: 330, r: 560, fill: "url(#sunG)" }, S);
+svg("circle", { cx: 2240, cy: 330, r: 104, fill: "#ffc96b", filter: "url(#card1)" }, S);
+[[1500, 240, 1.3], [1880, 360, 1], [2470, 150, 1.0]].forEach(([x, y, s]) => {
+  const g = svg("g", { filter: "url(#card1)", transform: `translate(${x} ${y}) scale(${s})` }, S);
+  svg("path", { d: "M -110 30 Q -100 -10 -60 -6 Q -40 -44 6 -34 Q 40 -60 76 -24 Q 116 -24 116 30 Z", fill: "#f6d7c6", opacity: 0.92 }, g);
+});
+
+// paper stars on threads across the night half
+const St = L();
+[[120, 260, 18], [520, 140, 14], [700, 320, 20], [900, 180, 13], [1080, 260, 16], [1250, 120, 12], [240, 520, 12], [1400, 200, 11]]
+  .forEach(([x, len, r], i) => PT.hangingStar(St, { x, top: -10, len, r, seed: i + 2 })(i * 0.7));
+
+// hills and the little town
+const H1 = L();
+svg("path", { d: `M -40 1010 Q 300 880 640 950 T 1400 920 T 2100 960 T 2600 930 V 1480 H -40 Z`, fill: "#3b3f6e", filter: "url(#card2)" }, H1);
+const town = svg("g", { filter: "url(#card1)" }, H1);
+[[560, 940], [640, 930], [1700, 935], [1790, 950], [1880, 940]].forEach(([x, y], i) => {
+  svg("path", { d: `M ${x - 34} ${y} L ${x} ${y - 32} L ${x + 34} ${y} L ${x + 34} ${y + 42} L ${x - 34} ${y + 42} Z`, fill: "#1d2448" }, town);
+  svg("rect", { x: x - 9, y: y + 8, width: 18, height: 18, fill: i % 2 ? "#ffcf7a" : "#ffe3a8" }, town);
+});
+const H2 = L();
+// the near hill is flat where the cast stands (desktop strip edges) and dips under the title card
+svg("path", { d: `M -40 925 L 520 925 Q 700 925 860 1000 Q 1080 1090 1280 1085 Q 1480 1090 1700 1000 Q 1860 925 2040 925 L 2600 925 V 1480 H -40 Z`, fill: "#5f7f63", filter: "url(#card2)" }, H2);
+for (let i = 0; i < 46; i++) svg("path", { d: `M ${i * 56 - 20} ${1150 + (i % 3) * 40} q 7 -20 14 0 q 7 -16 14 0`, stroke: "#557558", "stroke-width": 5, fill: "none", "stroke-linecap": "round" }, H2);
+[[980, 1000, 0.75], [1590, 990, 0.7]].forEach(([x, y, s]) => {
+  const g = svg("g", { filter: "url(#card2)", transform: `translate(${x} ${y}) scale(${s})` }, H1);
+  svg("rect", { x: -9, y: -110, width: 18, height: 112, rx: 5, fill: "#5e3829" }, g);
+  svg("circle", { cx: 0, cy: -150, r: 70, fill: "#3f6b4e" }, g);
+  svg("circle", { cx: -38, cy: -118, r: 46, fill: "#46775a" }, g);
+  svg("circle", { cx: 40, cy: -124, r: 50, fill: "#3a6248" }, g);
+});
+
+// the cast, standing in the desktop strip either side of the always-visible centre
+const P = L();
+const cast = [
+  { x: 150, s: 0.95, shirt: "#e4572e", hair: "#3a2a22", style: "curly", look: 0.6, head: 4 },
+  { x: 330, s: 0.62, hs: 1.36, shirt: "#f2b134", hair: "#6b3d24", style: "bob", look: 0.5, head: 6 },
+  { x: 2230, s: 0.95, shirt: "#2a9d8f", hair: "#2a1f1d", style: "bun", look: -0.5, head: -4 },
+  { x: 2420, s: 0.9, shirt: "#7b4b94", hair: "#e9e4da", style: "thin", look: -0.6, head: -5, glasses: true, lean: 5 },
+];
+cast.forEach((c) => {
+  const p = puppet(P, { shirt: c.shirt, hair: c.hair, hairStyle: c.style, glasses: c.glasses });
+  p.pose({ x: c.x, y: 930, s: c.s, hs: c.hs || 1, look: c.look, head: c.head, lean: c.lean || 0, armF: -10, armB: 10, brow: 2 });
+});
+
+// title card on two strings, inside the safe area
+const card = html("div", { style: { position: "absolute", left: SAFE.x + 160 + "px", top: SAFE.y + 18 + "px", width: SAFE.w - 320 + "px", height: SAFE.h - 36 + "px", transform: "rotate(-0.6deg)", transformOrigin: "50% -300px" } }, stage);
+{
+  const w = SAFE.w - 320, h = SAFE.h - 36;
+  const s = svg("svg", { width: w, height: h, viewBox: `0 0 ${w} ${h}`, style: "position:absolute;inset:0;overflow:visible" }, card);
+  [180, w - 180].forEach((x) => svg("line", { x1: x, y1: -700, x2: x, y2: 30, stroke: "#e9dcc2", "stroke-width": 3, opacity: 0.85 }, s));
+  svg("path", { d: `M 24 14 H ${w - 24} L ${w - 6} 34 V ${h - 30} L ${w - 26} ${h - 8} L ${w / 2} ${h - 22} L 26 ${h - 8} L 6 ${h - 30} V 34 Z`, fill: "#f3e6cc", filter: "url(#card3)" }, s);
+  svg("path", { d: `M 48 44 H ${w - 48} V ${h - 52} L ${w / 2} ${h - 64} L 48 ${h - 52} Z`, fill: "none", stroke: "#c96f4f", "stroke-width": 2.5, "stroke-dasharray": "2 11", "stroke-linecap": "round" }, s);
+  [180, w - 180].forEach((x) => svg("circle", { cx: x, cy: 34, r: 11, fill: "url(#brass)" }, s));
+  // the avatar's question mark, small, as a maker's mark
+  const q = svg("g", { filter: "url(#card1)", transform: `translate(${w - 210} ${h / 2 - 96}) scale(0.24)` }, s);
+  svg("path", { d: "M 268 318 C 268 196 372 150 440 158 C 528 168 566 236 548 304 C 532 366 470 384 438 418 C 412 446 404 476 404 520", fill: "none", stroke: "#e4572e", "stroke-width": 104, "stroke-linecap": "round" }, q);
+  svg("circle", { cx: 404, cy: 668, r: 56, fill: "url(#brass)" }, q);
+}
+html("div", { class: "name", text: CHANNEL, style: { position: "absolute", left: "0", width: "100%", top: "70px", textAlign: "center" } }, card);
+html("div", { class: "tag", html: TAGLINE, style: { position: "absolute", left: "0", width: "100%", top: SCHEDULE ? "232px" : "250px", textAlign: "center" } }, card);
+if (SCHEDULE) html("div", { class: "sched", text: SCHEDULE, style: { position: "absolute", left: "0", width: "100%", top: "312px", textAlign: "center" } }, card);
+
+html("div", { class: "vignette", style: { background: "radial-gradient(ellipse 80% 75% at 50% 50%, rgba(0,0,0,0) 60%, rgba(5,6,16,0.4) 100%)" } }, stage);
+const gr = PT.grain(stage, 0.2);
+window.seek = (t) => { gr(t); };
+window.seek(0);
+</script>
+</body>
+</html>
