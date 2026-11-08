@@ -1,0 +1,43 @@
+{
+  "template": "reveal",
+  "slug": "chaos_carpet",
+  "status": "ready; post a few weeks apart from chaos_pentagon (both are chaos games)",
+  "topic": "chaos game Sierpinski carpet",
+  "bpm": 120,
+  "color": "sky",
+  "doublings": 20,
+  "rule": {"type": "points", "ratio": 0.6667, "symmetry": 4,
+           "targets": [[-0.7, -0.7], [0, -0.7], [0.7, -0.7], [0.7, 0], [0.7, 0.7], [0, 0.7], [-0.7, 0.7], [-0.7, 0]]},
+  "hook": ["8 TARGETS ON A SQUARE", "JUMP 2/3 OF THE WAY. REPEAT."],
+  "hook_beats": 5,
+  "counter_label": "JUMPS",
+  "answer": ["THE SIERPINSKI CARPET", "HOLES INSIDE HOLES, FOREVER"],
+  "payoff_beats": 2,
+  "bonus": [
+    {"rule": {"type": "polygon", "corners": 4, "ratio": 0.5, "radius": 0.99}, "lines": ["4 CORNERS, JUMP HALFWAY", "IT JUST FILLS THE SQUARE"], "chord": "B2 F#3 B3 D4 F#4"},
+    {"rule": {"type": "polygon", "corners": 4, "ratio": 0.6667, "radius": 0.99}, "lines": ["4 CORNERS, JUMP 2/3", "CANTOR DUST"], "chord": "A2 E3 A3 D4 E4"}
+  ],
+  "cover": {"t": 10.2},
+  "package": {
+    "title": "8 Targets, Jump 2/3: What Do Random Dots Draw?",
+    "alt_titles": ["A Million Random Jumps Draw A Carpet Of Holes", "The Sierpinski Carpet From Pure Chance"],
+    "description": [
+      "Put 8 targets on a square: the 4 corners and the 4 edge midpoints. Pick one at random and jump 2/3 of the way to it. Repeat a million times.",
+      "",
+      "The dots draw the Sierpinski carpet: a square with a hole, eight smaller squares with holes, and so on forever. Fractal dimension log 8 / log 3 = 1.893.",
+      "",
+      "Change the rule and it changes completely:",
+      "4 corners, jump halfway → the square just fills up evenly",
+      "4 corners, jump 2/3 → Cantor dust",
+      "",
+      "Every dot here is a real jump."
+    ],
+    "question": "Which rule surprised you most? 👇",
+    "hashtags": ["math", "fractal", "satisfying", "chaosgame"],
+    "pinned": "The carpet has zero area but infinite perimeter of holes. Dimension 1.893: more than a line, less than a plane 🟦",
+    "tags": ["sierpinski carpet", "chaos game", "fractal", "math shorts"],
+    "tiktok": "8 targets. Jump 2/3 of the way. A million times 🟦 #math #fractal #satisfying",
+    "reels": "A million random jumps draw a carpet made of holes 🟦 Follow @packedbuh for more #math #fractal",
+    "sources": ["Chaos game: en.wikipedia.org/wiki/Chaos_game", "Sierpinski carpet: en.wikipedia.org/wiki/Sierpi%C5%84ski_carpet (dimension log 8/log 3)"]
+  }
+}

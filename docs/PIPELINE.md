@@ -109,7 +109,11 @@ Three templates, each with its own structure, motion and sound. Only the house b
 |---|---|---|---|---|
 | `ladder` (default) | Scale shock | A bar or column climbs past true-size landmarks on a log-zoom camera | Pitch ladder on the beat | `paper_12_folds`, `ocean_glasses`, `sky_weight`, `iphone_stack`, `rumor_doubles` |
 | `race` | Physics race / convergence | Balls race down ramps with exact frictionless physics, with a live timer and leaderboard; then a twist act (balls dropped from different heights all arrive together) | A click per fixed distance travelled (faster = more clicks), finish bells | `fastest_ramp` |
-| `reveal` | Famous phenomenon | A random rule iterated a million times resolves into a shape: chaos game on a polygon, or an IFS such as the Barnsley fern | A pluck per early jump, panned to where it lands, then a granular shimmer; the shape spins by its own symmetry | `chaos_game`, `barnsley_fern` (draft) |
+| `reveal` | Famous phenomenon | A random rule iterated a million times resolves into a shape: a chaos game on a polygon or on explicit targets, or an IFS | A pluck per early jump, panned to where it lands, then a granular shimmer; the shape spins by its own symmetry, or sways if it's an IFS | `chaos_pentagon`, `chaos_carpet`, `barnsley_fern` (shelved) |
+| `area` | Scale shock in 2-D | A sheet doubles by joining a copy alongside; nested A-size cut lines; true-size landmark rectangles; scale bar | Paper slap on every doubling | `a4_doubling` |
+| `shoot` | Physics demo | Side-on projectile rounds: a launcher, a target that drops when you fire, a results board, then a live ½gt² proof | Pop, a click per 2 m flown, a bell for a hit, a thud for a landing | `monkey_hunter` |
+
+Shelved specs (`"status": "shelved: ..."`) are skipped by batch builds and only build when named explicitly.
 
 Rotation rules:
 - Never post two Shorts of the same template back to back.

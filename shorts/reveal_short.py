@@ -26,9 +26,12 @@ def polygon(k, radius=R, rot=-90.0):
 def run_rule(rule, n, rng):
     """Iterate a rule n times. Returns points (n+1, 2) in design px, chosen-target index per jump,
     and the target points (polygon rules) or None (IFS)."""
-    if rule["type"] == "polygon":
-        k = rule["corners"]
-        t = polygon(k, rule.get("radius", 1.0) * R, rule.get("rot", -90.0 if k != 4 else -45.0))
+    if rule["type"] in ("polygon", "points"):
+        if rule["type"] == "points":              # explicit targets, in units of R around the centre
+            t = np.array([[CX + x * R, CY - y * R] for x, y in rule["targets"]], float)
+        else:
+            k = rule["corners"]
+            t = polygon(k, rule.get("radius", 1.0) * R, rule.get("rot", -90.0 if k != 4 else -45.0))
         if rule.get("center"):
             t = np.vstack([t, [[CX, CY]]])
         kk = len(t)
@@ -118,16 +121,16 @@ class RevealShort:
         """Spin by the main shape's own symmetry angle over the whole loop, so the last frame
         is the first frame again (a triangle turns exactly 120 degrees)."""
         r = self.spec["rule"]
-        if r["type"] != "polygon":                   # IFS shapes sway gently about their base, like a plant in wind
+        if r["type"] not in ("polygon", "points"):   # IFS shapes sway gently about their base, like a plant in wind
             cyc = max(1, round(self.duration / 4))
             return self.spec.get("sway", 0.07) * math.sin(2 * math.pi * cyc * t / self.duration)
         if not self.spec.get("spin", True):
             return 0.0
-        return 2 * math.pi / r["corners"] * t / self.duration
+        return 2 * math.pi / r.get("symmetry", r.get("corners", 4)) * t / self.duration
 
     @property
     def pivot(self):
-        return (CX, CY) if self.spec["rule"]["type"] == "polygon" else tuple(self.main["pts"][0])
+        return (CX, CY) if self.spec["rule"]["type"] in ("polygon", "points") else tuple(self.main["pts"][0])
 
     def rot(self, p, th):
         if th == 0:

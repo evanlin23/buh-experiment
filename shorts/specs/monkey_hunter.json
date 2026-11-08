@@ -1,0 +1,122 @@
+{
+  "template": "shoot",
+  "slug": "monkey_hunter",
+  "topic": "monkey and hunter projectile",
+  "bpm": 120,
+  "hook": [
+    "THE MONKEY DROPS",
+    "THE MOMENT YOU FIRE"
+  ],
+  "scene": {
+    "target": [
+      20.0,
+      10.0
+    ],
+    "ppm": 43,
+    "x0": 120,
+    "ground": 1290,
+    "click_m": 2.0
+  },
+  "acts": [
+    {
+      "type": "shot",
+      "v": 40,
+      "tail_beats": 1
+    },
+    {
+      "type": "shot",
+      "v": 25,
+      "tail_beats": 1
+    },
+    {
+      "type": "shot",
+      "v": 16,
+      "tail_beats": 1
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "EVERY DART HITS",
+        "AIM STRAIGHT AT THE MONKEY"
+      ],
+      "beats": 3,
+      "why": true,
+      "why_v": 25
+    },
+    {
+      "type": "shot",
+      "v": 12,
+      "tail_beats": 1,
+      "headline": [
+        "NOW A SLOW ONE",
+        "12 M/S"
+      ]
+    },
+    {
+      "type": "card",
+      "headline": [
+        "TOO SLOW: THE MONKEY",
+        "HITS THE GROUND FIRST"
+      ],
+      "beats": 3,
+      "replay_v": 12
+    },
+    {
+      "type": "card",
+      "headline": [
+        "WHY? GRAVITY PULLS",
+        "BOTH EXACTLY THE SAME"
+      ],
+      "beats": 3,
+      "why": true,
+      "why_v": 16
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "cover": {
+    "t": 0.4
+  },
+  "package": {
+    "title": "Aim At The Falling Monkey. Which Darts Hit?",
+    "alt_titles": [
+      "The Monkey And The Hunter",
+      "Why You Should Aim Straight At A Falling Target"
+    ],
+    "description": [
+      "A monkey hangs 20 m away and 10 m up. The instant you fire, it lets go. Where should you aim?",
+      "",
+      "Straight at it. Gravity pulls the dart and the monkey down by exactly the same ½gt², so a dart aimed at the monkey always meets it, at any speed:",
+      "40 m/s: hit at 8.5 m",
+      "25 m/s: hit at 6.1 m",
+      "16 m/s: hit at 0.4 m",
+      "12 m/s: miss. The monkey reaches the ground (1.43 s) before the dart arrives.",
+      "",
+      "Exact projectile physics, no air resistance; g = 9.81 m/s². Every click is 2 m of flight."
+    ],
+    "question": "Where would you have aimed? 👇",
+    "hashtags": [
+      "physics",
+      "math",
+      "satisfying",
+      "science"
+    ],
+    "pinned": "It's a classic physics demo (the 'monkey and hunter'). The minimum speed here is 15.7 m/s; slower and the monkey lands first 🐒",
+    "tags": [
+      "monkey and hunter",
+      "projectile motion",
+      "physics demo",
+      "gravity",
+      "physics shorts"
+    ],
+    "tiktok": "The monkey drops the moment you fire. Where do you aim? 🐒 #physics #science #math",
+    "reels": "Aim straight at a falling monkey and you always hit it. Here's why 🐒 Follow @packedbuh for more #physics",
+    "sources": [
+      "Monkey and hunter demo: pirt.asu.edu/demos/1D60.30A; case.edu/artsci/phys/courses/demos/monk.htm",
+      "Range and drop: y = v sinθ t − ½gt², monkey y = 10 − ½gt²"
+    ]
+  }
+}

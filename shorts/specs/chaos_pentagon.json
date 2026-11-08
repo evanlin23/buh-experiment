@@ -1,0 +1,92 @@
+{
+  "template": "reveal",
+  "slug": "chaos_pentagon",
+  "topic": "chaos game pentagon (pentaflake) and hexagon",
+  "bpm": 120,
+  "color": "pink",
+  "doublings": 20,
+  "rule": {
+    "type": "polygon",
+    "corners": 5,
+    "ratio": 0.618034
+  },
+  "hook": [
+    "5 CORNERS. PICK ONE AT RANDOM",
+    "JUMP 62% OF THE WAY. REPEAT."
+  ],
+  "hook_beats": 5,
+  "counter_label": "JUMPS",
+  "answer": [
+    "A PENTAGON OF PENTAGONS",
+    "FROM PURE RANDOMNESS"
+  ],
+  "payoff_beats": 2,
+  "bonus": [
+    {
+      "rule": {
+        "type": "polygon",
+        "corners": 6,
+        "ratio": 0.6667
+      },
+      "lines": [
+        "6 CORNERS, JUMP 2/3",
+        "SNOWFLAKES IN EVERY HOLE"
+      ],
+      "chord": "B2 F#3 B3 D4 F#4"
+    },
+    {
+      "rule": {
+        "type": "polygon",
+        "corners": 3,
+        "ratio": 0.5
+      },
+      "lines": [
+        "3 CORNERS, JUMP HALFWAY",
+        "THE SIERPINSKI TRIANGLE"
+      ],
+      "chord": "G2 D3 G3 B3 D4"
+    }
+  ],
+  "cover": {
+    "t": 10.2
+  },
+  "package": {
+    "title": "5 Corners, 1 Random Rule, 1,000,000 Dots",
+    "alt_titles": [
+      "Random Jumps Draw A Pentagon Of Pentagons",
+      "The Chaos Game On A Pentagon"
+    ],
+    "description": [
+      "The chaos game: pick one of a pentagon's 5 corners at random and jump 61.8% of the way to it (1/φ, the golden ratio). Repeat a million times.",
+      "",
+      "The jumps are random, but the dots draw a perfect pentagon made of pentagons: a pentaflake, fractal dimension 1.672.",
+      "",
+      "Same rule, other shapes:",
+      "6 corners, jump 2/3 → a Sierpinski hexagon whose holes are edged with Koch snowflakes",
+      "3 corners, jump halfway → the Sierpinski triangle",
+      "",
+      "Every dot here is a real jump, and every early pluck is one landing."
+    ],
+    "question": "Did you expect pentagons inside pentagons? 👇",
+    "hashtags": [
+      "math",
+      "fractal",
+      "satisfying",
+      "chaosgame"
+    ],
+    "pinned": "Jump 1/φ ≈ 0.618 of the way and the pentagons just touch. Any other ratio and they overlap or drift apart ⭐",
+    "tags": [
+      "chaos game",
+      "pentaflake",
+      "fractal",
+      "golden ratio",
+      "math shorts"
+    ],
+    "tiktok": "5 corners. 1 random rule. A million dots 🤯 #math #fractal #satisfying",
+    "reels": "Random jumps toward a pentagon's corners draw pentagons inside pentagons ⭐ Follow @packedbuh for more #math #fractal",
+    "sources": [
+      "Chaos game: en.wikipedia.org/wiki/Chaos_game",
+      "n-flake (pentaflake dimension log5/log(1+φ) = 1.672): en.wikipedia.org/wiki/N-flake"
+    ]
+  }
+}

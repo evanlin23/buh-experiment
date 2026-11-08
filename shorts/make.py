@@ -33,33 +33,38 @@ from ladder_short import LadderShort  # noqa: E402
 from race_short import RaceShort  # noqa: E402
 from reveal_short import RevealShort  # noqa: E402
 from area_short import AreaShort  # noqa: E402
+from shoot_short import ShootShort  # noqa: E402
 
-TEMPLATES = {"ladder": LadderShort, "race": RaceShort, "reveal": RevealShort, "area": AreaShort}
+TEMPLATES = {"ladder": LadderShort, "race": RaceShort, "reveal": RevealShort, "area": AreaShort, "shoot": ShootShort}
 
 
 def scene_for(v, spec):
     return TEMPLATES[spec.get("template", "ladder")](v, spec)
 
 PUBLISHED = os.path.join(HERE, "specs", "published.json")
-SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "race_short.py", "reveal_short.py", "area_short.py", "units.py"]
+SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "race_short.py", "reveal_short.py", "area_short.py", "shoot_short.py", "units.py"]
 
 
 def load(paths):
     files = []
     for p in paths:
-        files += sorted(glob.glob(os.path.join(p, "*.json"))) if os.path.isdir(p) else [p]
+        files += [(f, True) for f in sorted(glob.glob(os.path.join(p, "*.json")))] if os.path.isdir(p) else [(p, False)]
     out = []
-    for f in files:
+    for f, from_dir in files:
         if os.path.basename(f) == "published.json":
             continue
         with open(f) as fh:
-            out.append((f, json.load(fh)))
+            spec = json.load(fh)
+        if from_dir and str(spec.get("status", "")).startswith("shelved"):
+            continue                              # shelved ideas build only when named explicitly
+        out.append((f, spec))
     return out
 
 
 def registry_problems(specs):
     """Every Short must be its own idea: no repeated slug, title or topic, and nothing already published."""
-    everything = load([os.path.join(HERE, "specs")])
+    everything = [(f, json.load(open(f))) for f in glob.glob(os.path.join(HERE, "specs", "*.json"))
+                  if os.path.basename(f) != "published.json"]
     published = json.load(open(PUBLISHED)) if os.path.exists(PUBLISHED) else []
     pub_topics = {p.get("topic", "").lower() for p in published}
     problems = []
