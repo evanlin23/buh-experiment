@@ -22,7 +22,7 @@ SETTINGS = [
 def description(spec, scene):
     pk = spec["package"]
     fmt = pk.get("step_format", "{n}: {q} ({note})")
-    steps = [fmt.format(n=n, q=scene.fmt(scene.q(int(n))), note=note) for n, note in pk.get("steps", {}).items()]
+    steps = [fmt.format(**{**scene.fields_for(int(n)), "note": note}) for n, note in pk.get("steps", {}).items()]
     lines = []
     for line in pk["description"]:
         lines.extend(steps if line == "{steps}" else [line])

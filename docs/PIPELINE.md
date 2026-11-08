@@ -59,6 +59,9 @@ Specs that haven't changed are skipped, so rerunning it is cheap.
   "counter": ["{n} FOLD{S}", "needs {q} of paper"],   // {n} {S}/{s} plural, {q}, {q_exact}, plus custom "fields"
   "fields": {"clock": {"formula": "n*15*60", "unit": "time"}},   // optional extra counter values
   "ruler_min": 0.0001,                       // smallest ruler tick
+  "column": {"width": 300, "color": "sky"},  // optional wide glowing column under the bar (water level, air...).
+                                             // Use it whenever a ladder has markers but no true-size icons:
+                                             // a thin bar alone reads as still frames and fails QA
   "camera": {"frame": [{"from": 5, "to": 7, "min": 0.42}]},      // optional: hold a wider view for these steps
   "acts": [
     {"type": "climb", "to": 12, "beats": 1, "pause_after": {"7": 1}, "final_rise_beats": 2,
@@ -93,6 +96,10 @@ At 120 BPM one beat is 0.5 s.
 | Whole Short | 14–20 s | |
 
 Glyphs: `moon`, `sun`, `planet`, `star`, `mount`, `person`, `galaxy`, `line` (the default).
+
+Steps can also be things rather than numbers: give `quantity.values` plus `quantity.labels` (and optionally `quantity.words`), then use `{label}` and `{word}` in the counter. Example: `ocean_glasses` steps through a bucket, a bathtub … all the oceans. Formulas may use `math` functions plus `min`, `max`, `abs` and `round`.
+
+The backlog of vetted ideas lives in `research/backlog.md`.
 
 ## Staying on the right side of YouTube's "inauthentic content" rule at three a day
 

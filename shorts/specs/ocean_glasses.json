@@ -1,0 +1,220 @@
+{
+  "slug": "ocean_glasses",
+  "topic": "glasses of water in the ocean vs molecules in a glass",
+  "unit": "count",
+  "bpm": 120,
+  "quantity": {
+    "values": [
+      1,
+      40,
+      600,
+      200000,
+      10000000.0,
+      29800000000000.0,
+      604000000000000.0,
+      4.84e+16,
+      1.5e+19,
+      2.84e+21,
+      5.34e+21,
+      8.357e+24
+    ],
+    "labels": [
+      "ONE GLASS",
+      "A BUCKET",
+      "A BATHTUB",
+      "A BACKYARD POOL",
+      "AN OLYMPIC POOL",
+      "LOCH NESS",
+      "LAKE TAHOE",
+      "LAKE SUPERIOR",
+      "THE MEDITERRANEAN",
+      "THE PACIFIC",
+      "ALL THE OCEANS",
+      "ONE GLASS OF WATER"
+    ],
+    "words": [
+      "glass",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "glasses",
+      "molecules"
+    ]
+  },
+  "start": 0,
+  "hook": [
+    "HOW MANY GLASSES OF WATER",
+    "FIT IN THE OCEAN?"
+  ],
+  "counter": [
+    "{label}",
+    "{q} {word}"
+  ],
+  "ruler_min": 1,
+  "acts": [
+    {
+      "type": "climb",
+      "to": 10,
+      "beats": 1,
+      "final_rise_beats": 2
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "5.34 SEXTILLION GLASSES",
+        "IN ALL THE OCEANS"
+      ],
+      "beats": 2
+    },
+    {
+      "type": "climb",
+      "to": 11,
+      "beats": 1,
+      "lead_beats": 0.5,
+      "final_rise_beats": 2,
+      "headline": [
+        "NOW COUNT THE MOLECULES",
+        "IN JUST ONE GLASS"
+      ]
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "1,565× MORE MOLECULES",
+        "THAN GLASSES IN THE OCEAN"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "WHY? ONE WATER MOLECULE",
+        "IS ABOUT 0.3 NANOMETRES WIDE"
+      ],
+      "beats": 3
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "q": 40,
+      "label": "A bucket",
+      "sub": "10 litres"
+    },
+    {
+      "q": 600,
+      "label": "A bathtub",
+      "sub": "150 litres"
+    },
+    {
+      "q": 200000,
+      "label": "A backyard pool",
+      "sub": "50 m³"
+    },
+    {
+      "q": 10000000.0,
+      "label": "Olympic pool",
+      "sub": "2,500 m³"
+    },
+    {
+      "q": 29800000000000.0,
+      "label": "Loch Ness",
+      "sub": "7.45 km³",
+      "glyph": "mount"
+    },
+    {
+      "q": 604000000000000.0,
+      "label": "Lake Tahoe",
+      "sub": "151 km³",
+      "glyph": "mount"
+    },
+    {
+      "q": 4.84e+16,
+      "label": "Lake Superior",
+      "sub": "12,100 km³",
+      "glyph": "mount"
+    },
+    {
+      "q": 1.5e+19,
+      "label": "The Mediterranean",
+      "sub": "3.75 million km³",
+      "glyph": "planet"
+    },
+    {
+      "q": 2.84e+21,
+      "label": "The Pacific",
+      "sub": "~710 million km³",
+      "glyph": "planet"
+    },
+    {
+      "q": 5.34e+21,
+      "label": "All the oceans",
+      "sub": "1.335 billion km³",
+      "glyph": "planet"
+    }
+  ],
+  "cover": {
+    "t": 7.0
+  },
+  "package": {
+    "title": "How Many Glasses Of Water Fit In The Ocean?",
+    "alt_titles": [
+      "More Molecules In One Glass Than Glasses In The Ocean",
+      "Your Glass Of Water Beats The Entire Ocean"
+    ],
+    "description": [
+      "Fill 250 ml glasses with all the water on Earth's oceans. How many do you need?",
+      "",
+      "{steps}",
+      "",
+      "Then count the molecules in just ONE glass: 250 g ÷ 18 g/mol × 6.022 × 10²³ = 8.36 × 10²⁴ molecules. That's 1,565 times more molecules than there are glasses of water in all the oceans."
+    ],
+    "steps": {
+      "2": "A bathtub",
+      "4": "An Olympic pool",
+      "5": "Loch Ness",
+      "7": "Lake Superior",
+      "9": "The Pacific",
+      "10": "All the oceans"
+    },
+    "step_format": "{note}: {q} glasses",
+    "question": "Did you guess the ocean would lose? 👇",
+    "hashtags": [
+      "math",
+      "science",
+      "chemistry",
+      "satisfying"
+    ],
+    "pinned": "A water molecule is about 0.3 nanometres across. 8.36 × 10²⁴ of them fit in one glass 💧",
+    "tags": [
+      "molecules in a glass of water",
+      "avogadro",
+      "ocean volume",
+      "math shorts",
+      "science shorts"
+    ],
+    "tiktok": "How many glasses of water fit in the ocean? Now count the molecules in ONE glass 🤯 #science #math #chemistry",
+    "reels": "One glass of water has 1,565× more molecules than the ocean has glasses 💧 Follow @packedbuh for more #science #math",
+    "sources": [
+      "NOAA: oceans hold ~1.335 billion km³ (oceanservice.noaa.gov/facts/oceanwater.html)",
+      "NIST: Avogadro constant 6.02214076 × 10²³ (exact)",
+      "Loch Ness 7.45 km³; Lake Tahoe ~151 km³; Lake Superior ~12,100 km³; Mediterranean ~3.75 million km³; Pacific ~710 million km³"
+    ]
+  },
+  "column": {
+    "width": 300,
+    "color": "sky",
+    "fill": 0.14
+  }
+}

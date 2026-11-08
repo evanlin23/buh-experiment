@@ -1,0 +1,160 @@
+{
+  "slug": "iphone_stack",
+  "topic": "stack of every iPhone ever sold",
+  "unit": "length",
+  "bpm": 120,
+  "quantity": {
+    "formula": "0.0078 * min(2**n, 3e9)"
+  },
+  "fields": {
+    "phones": {
+      "formula": "min(2**n, 3e9)",
+      "unit": "count",
+      "upper": true
+    }
+  },
+  "start": 1,
+  "hook": [
+    "STACK EVERY IPHONE",
+    "EVER SOLD. HOW HIGH?"
+  ],
+  "counter": [
+    "{phones} IPHONES",
+    "{q} tall"
+  ],
+  "ruler_min": 0.01,
+  "acts": [
+    {
+      "type": "climb",
+      "to": 11,
+      "beats": 1,
+      "callouts": {
+        "8": "TALLER THAN YOU"
+      }
+    },
+    {
+      "type": "climb",
+      "to": 32,
+      "beats": 0.5,
+      "tail_beats": 1.5
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "HIGHER THAN THE",
+        "GPS SATELLITES"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "3 BILLION IPHONES SOLD",
+        "AT 7.8 MM EACH: 23,400 KM"
+      ],
+      "beats": 3
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "icon": "card",
+      "x": 600
+    },
+    {
+      "icon": "a4",
+      "x": 150
+    },
+    {
+      "icon": "person",
+      "x": 330
+    },
+    {
+      "icon": "house",
+      "x": 440
+    },
+    {
+      "icon": "eiffel",
+      "x": 470
+    },
+    {
+      "icon": "burj",
+      "x": 620
+    },
+    {
+      "q": 8849,
+      "label": "Mount Everest",
+      "sub": "8,849 m",
+      "glyph": "mount"
+    },
+    {
+      "q": 100000.0,
+      "label": "Edge of space",
+      "sub": "100 km"
+    },
+    {
+      "q": 400000.0,
+      "label": "The ISS",
+      "sub": "~400 km up",
+      "glyph": "star"
+    },
+    {
+      "q": 20200000.0,
+      "label": "GPS satellites",
+      "sub": "20,200 km up",
+      "glyph": "star"
+    }
+  ],
+  "cover": {
+    "t": 8.6
+  },
+  "package": {
+    "title": "Stack Every iPhone Ever Sold. How High?",
+    "alt_titles": [
+      "3 Billion iPhones Stacked Up",
+      "Every iPhone Ever, Stacked To Space"
+    ],
+    "description": [
+      "Apple has sold more than 3 billion iPhones (announced July 2025). Stack them, at about 7.8 mm each, and keep doubling:",
+      "",
+      "{steps}",
+      "",
+      "All 3 billion: about 23,400 km, higher than the GPS satellites (20,200 km) but short of geostationary orbit (35,786 km)."
+    ],
+    "steps": {
+      "8": "taller than you",
+      "17": "taller than the Burj Khalifa",
+      "21": "taller than Everest",
+      "24": "past the edge of space",
+      "26": "above the ISS",
+      "32": "higher than GPS satellites"
+    },
+    "step_format": "{phones} iPhones: {q} ({note})",
+    "question": "Guess how many phones it takes to pass Everest 👇",
+    "hashtags": [
+      "math",
+      "iphone",
+      "science",
+      "satisfying"
+    ],
+    "pinned": "Assumes 7.8 mm per phone. Older models were up to 11.6 mm thick, newer ones under 7 mm 📱",
+    "tags": [
+      "iphone stack",
+      "every iphone ever sold",
+      "how tall",
+      "math shorts"
+    ],
+    "tiktok": "Stack every iPhone ever sold. How high does it go? 📱 #math #iphone #science",
+    "reels": "3 billion iPhones stacked up go higher than GPS satellites 📱 Follow @packedbuh for more #math #science",
+    "sources": [
+      "Apple: 3 billion iPhones sold (TechCrunch, 31 Jul 2025)",
+      "GPS orbit altitude ~20,200 km (gps.gov)",
+      "Geostationary orbit 35,786 km; ISS ~400 km; Kármán line 100 km"
+    ]
+  }
+}

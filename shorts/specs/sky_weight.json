@@ -1,0 +1,180 @@
+{
+  "slug": "sky_weight",
+  "topic": "weight of the atmosphere",
+  "unit": "mass",
+  "bpm": 120,
+  "quantity": {
+    "values": [
+      48,
+      108,
+      730,
+      1033,
+      83700,
+      1033000.0,
+      2690000.0,
+      73800000.0,
+      35200000000.0,
+      607000000000.0,
+      16240000000000.0,
+      2510000000000000.0,
+      1.02e+17,
+      5.148e+18
+    ],
+    "labels": [
+      "THE AIR IN YOUR ROOM",
+      "THE AIR ABOVE YOUR PHONE",
+      "THE AIR ABOVE A PIZZA",
+      "THE AIR ABOVE YOUR HEAD",
+      "THE AIR ABOVE A CAR",
+      "THE AIR ABOVE A HOUSE",
+      "ABOVE A TENNIS COURT",
+      "ABOVE A FOOTBALL PITCH",
+      "ABOVE CENTRAL PARK",
+      "ABOVE MANHATTAN",
+      "ABOVE LONDON",
+      "ABOVE THE UK",
+      "ABOVE THE USA",
+      "THE WHOLE SKY"
+    ]
+  },
+  "start": 0,
+  "hook": [
+    "HOW MUCH DOES",
+    "THE SKY WEIGH?"
+  ],
+  "counter": [
+    "{label}",
+    "weighs {q}"
+  ],
+  "ruler_min": 10,
+  "acts": [
+    {
+      "type": "climb",
+      "to": 13,
+      "beats": 1,
+      "final_rise_beats": 2,
+      "callouts": {
+        "3": "AS MUCH AS A SMALL CAR",
+        "9": "MORE THAN EVERY HUMAN COMBINED"
+      }
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "5 QUADRILLION TONNES",
+        "OF AIR ABOVE US"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "SO WHY DON'T WE GET CRUSHED?",
+        "AIR PUSHES FROM EVERY SIDE"
+      ],
+      "beats": 4
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "q": 1500,
+      "label": "A car",
+      "sub": "1.5 tonnes"
+    },
+    {
+      "q": 6000,
+      "label": "An elephant",
+      "sub": "6 tonnes",
+      "glyph": "star"
+    },
+    {
+      "q": 150000.0,
+      "label": "A blue whale",
+      "sub": "150 tonnes",
+      "glyph": "star"
+    },
+    {
+      "q": 10100000.0,
+      "label": "The Eiffel Tower",
+      "sub": "10,100 tonnes",
+      "glyph": "mount"
+    },
+    {
+      "q": 5900000000.0,
+      "label": "The Great Pyramid",
+      "sub": "~6 million tonnes",
+      "glyph": "mount"
+    },
+    {
+      "q": 400000000000.0,
+      "label": "Every human combined",
+      "sub": "~400 million tonnes",
+      "glyph": "person"
+    },
+    {
+      "q": 1.21e+16,
+      "label": "Lake Superior's water",
+      "sub": "12 trillion tonnes",
+      "glyph": "planet"
+    }
+  ],
+  "cover": {
+    "t": 5.4
+  },
+  "package": {
+    "title": "How Much Does The Sky Weigh?",
+    "alt_titles": [
+      "The Air Above Your Head Weighs A Tonne",
+      "You're Carrying A Tonne Of Air Right Now"
+    ],
+    "description": [
+      "Air has weight. At sea level the column of air above every square metre weighs about 10.3 tonnes (101,325 Pa ÷ g).",
+      "",
+      "{steps}",
+      "",
+      "The whole atmosphere weighs about 5.15 quadrillion tonnes (5.15 × 10¹⁸ kg). We don't get crushed because air presses equally from every side, including from the air and fluids inside us."
+    ],
+    "steps": {
+      "1": "The air above your phone",
+      "3": "The air above your head",
+      "4": "The air above a car",
+      "7": "Above a football pitch",
+      "9": "Above Manhattan",
+      "13": "The whole sky"
+    },
+    "step_format": "{note}: {q}",
+    "question": "Which one surprised you? 👇",
+    "hashtags": [
+      "science",
+      "physics",
+      "math",
+      "satisfying"
+    ],
+    "pinned": "The air above your phone screen weighs about as much as a person. Air pressure: 101,325 Pa at sea level 🌍",
+    "tags": [
+      "weight of the atmosphere",
+      "air pressure",
+      "how much does air weigh",
+      "physics shorts"
+    ],
+    "tiktok": "How much does the sky weigh? The air above your head alone is about a tonne 🤯 #science #physics",
+    "reels": "The sky weighs 5 quadrillion tonnes. So why don't we get crushed? 🌍 Follow @packedbuh for more #science #physics",
+    "sources": [
+      "Total atmospheric mass 5.148 × 10¹⁸ kg (Trenberth & Smith 2005, NCAR: www2.cgd.ucar.edu/cas/abstracts/files/kevin2003_6.html)",
+      "Sea-level pressure 101,325 Pa → 10,332 kg of air per m²",
+      "Areas: tennis court 260.8 m², pitch 105×68 m, Central Park 3.41 km², Manhattan 58.7 km², Greater London 1,572 km², UK 242,495 km², USA 9.83 million km²",
+      "Eiffel Tower 10,100 t (toureiffel.paris); Great Pyramid ~6 million t; total human body mass ~400 million t (estimate)"
+    ]
+  },
+  "column": {
+    "width": 300,
+    "color": "lav",
+    "fill": 0.1
+  }
+}

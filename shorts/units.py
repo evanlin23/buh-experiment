@@ -23,7 +23,9 @@ def _named(x, unit=""):
 
 def sci(x):
     e = int(math.floor(math.log10(x)))
-    return f"10{str(e).translate(_SUP)}"
+    m = x / 10 ** e
+    head = "" if abs(m - 1) < 5e-3 else f"{m:.3g} × "
+    return f"{head}10{str(e).translate(_SUP)}"
 
 
 def length(m):

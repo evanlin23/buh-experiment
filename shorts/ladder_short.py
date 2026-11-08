@@ -28,6 +28,7 @@ SAFE_W = 960
 
 def _eval(expr, n, params):
     env = {k: getattr(math, k) for k in dir(math) if not k.startswith("_")}
+    env.update(min=min, max=max, abs=abs, round=round)
     env.update(params)
     env["n"] = n
     return float(eval(expr, {"__builtins__": {}}, env))  # specs are our own trusted files
@@ -170,9 +171,21 @@ class LadderShort:
                 total += amount * (t - t0) / (t1 - t0) if t < t1 else amount * (1 - ease((t - t1) / 0.5))
         return total
 
+    def _drift(self, t, n):
+        """Between steps of a climb, keep zooming out a little, so the frame never parks.
+        Kept below the smallest step's growth so the camera never reverses."""
+        act = self.act_at(t)
+        if act["type"] != "climb" or n == self.start or n not in self.T or n >= act["steps"][-1] or t < self.T[n]:
+            return 0.0                           # no drift on the opening step: frame 0 must equal the last frame
+        if not hasattr(self, "_delta"):
+            ratios = [abs(math.log(self.q(m + 1) / self.q(m))) for m in range(self.start, self.n_max)]
+            self._delta = min(0.25, 0.5 * min(ratios))
+        nxt = min(tm for m, tm in self.T.items() if m > n)
+        return self._delta * min(1.0, (t - self.T[n]) / max(1e-6, nxt - self.T[n]))
+
     def _target(self, t):
         n, q = self.state(t)
-        return math.log(max(q / 0.72, self._frame_min(n), 1e-300)) + self._push(t)
+        return math.log(max(q / 0.72, self._frame_min(n), 1e-300)) + self._push(t) + self._drift(t, n)
 
     def _build_camera(self):
         dt = 1 / 240
@@ -209,13 +222,22 @@ class LadderShort:
         f.text(l1, 540, 118, p, C["white"], a=a)
         f.text(l2, 540, 118 + p * 1.2, p, C["lav"], a=a)
 
-    def counter_text(self, n):
+    def fields_for(self, n):
+        """Every value a counter line or description line can use for step n."""
         q = self.q(n)
         fields = dict(n=f"{n:,}", S="" if n == 1 else "S", s="" if n == 1 else "s", q=self.fmt(q),
                       q_exact=units.count_exact(q))
+        qs = self.spec["quantity"]
+        for key in ("labels", "words"):          # per-step text for ladders whose steps are things
+            if key in qs:
+                fields[key[:-1]] = qs[key][min(len(qs[key]) - 1, max(0, n - self.start))]
         for name, fd in self.spec.get("fields", {}).items():
             val = units.FORMAT[fd["unit"]](_eval(fd["formula"], n, self._q_params))
             fields[name] = val.upper() if fd.get("upper") else val
+        return fields
+
+    def counter_text(self, n):
+        fields, q = self.fields_for(n), self.q(n)
         l1, l2 = self.spec["counter"]
         plural = lambda m: m.group(1) if abs(q - 1) < 1e-9 else m.group(2)  # noqa: E731  {pl:person,people}
         l1, l2 = (re.sub(r"\{pl:([^,}]*),([^}]*)\}", plural, x) for x in (l1, l2))
@@ -338,6 +360,19 @@ class LadderShort:
             self._glyph(f, m["glyph"], 640, y, a, t)
 
         bar_px = q * k
+        col = self.spec.get("column")
+        if col:                                  # a wide glowing column: water level, air column...
+            w = col.get("width", 260)
+            colr = C[col.get("color", "sky")]
+            top = GROUND_Y - max(bar_px, 1.5)
+            f.poly([(BAR_X - 14 - w, GROUND_Y), (BAR_X - 14 - w, top), (BAR_X - 14, top), (BAR_X - 14, GROUND_Y)],
+                   colr, 0, 1.0, fill=col.get("fill", 0.13))
+            f.line([(BAR_X - 14 - w, top), (BAR_X - 14, top)], colr, 5, 0.9)
+            for i in range(1, 4):                # ripples on the surface, moving with time
+                cyc = round(5 * self.duration / (2 * math.pi))     # whole cycles per loop, so the seam is clean
+                yy = top + 22 * i + 6 * math.sin(2 * math.pi * cyc * t / self.duration + i)
+                if yy < GROUND_Y - 4:
+                    f.line([(BAR_X - 14 - w, yy), (BAR_X - 14, yy)], colr, 2, 0.25 / i)
         pulse = max([1 - (t - tm) / 0.25 for tm in self.T.values() if 0 <= t - tm < 0.25], default=0.0)
         f.line([(BAR_X, GROUND_Y), (BAR_X, GROUND_Y - max(bar_px, 1.5))], C["warm"], 18 + 10 * pulse)
         f.dot(BAR_X, GROUND_Y - bar_px, 6 + 6 * pulse, C["core"], 0.9)

@@ -358,14 +358,14 @@ class Mixer:
             mix[-fade:] *= np.linspace(1, 0, fade)[:, None]
             wavfile.write(raw, SR, mix.astype(np.float32))
             meas = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af",
-                                   f"loudnorm=I={lufs}:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
+                                   f"loudnorm=I={lufs}:TP=-1.5:LRA=20:print_format=json", "-f", "null", "-"],
                                   capture_output=True, text=True).stderr
             m = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
             if float(m["input_tp"]) + (lufs - float(m["input_i"])) <= -1.7:
                 break
             drive *= 1.7
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-af",
-                        f"loudnorm=I={lufs}:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+                        f"loudnorm=I={lufs}:TP=-1.5:LRA=20:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
                         f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:linear=true",
                         "-ar", str(SR), path], check=True)
         os.remove(raw)
