@@ -1,0 +1,157 @@
+{
+  "template": "area",
+  "slug": "a4_doubling",
+  "topic": "doubling an A4 sheet until it covers Earth",
+  "bpm": 120,
+  "sheet": {
+    "w": 0.21,
+    "h": 0.297
+  },
+  "step_sound": "paper",
+  "start": 0,
+  "hook": [
+    "DOUBLE A SHEET OF A4",
+    "UNTIL IT COVERS THE EARTH"
+  ],
+  "counter": [
+    "{n} DOUBLING{S}",
+    "{q}"
+  ],
+  "acts": [
+    {
+      "type": "climb",
+      "to": 8,
+      "beats": 1,
+      "callouts": {
+        "4": "THAT'S A0: EXACTLY 1 M²"
+      },
+      "pause_after": {
+        "4": 1
+      }
+    },
+    {
+      "type": "climb",
+      "to": 30,
+      "beats": 0.5
+    },
+    {
+      "type": "climb",
+      "to": 53,
+      "beats": 0.25,
+      "tail_beats": 0.75
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "JUST 53 DOUBLINGS",
+        "TO COVER THE WHOLE EARTH"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "AND IT'S STILL A4'S SHAPE",
+        "EVERY A-SIZE IS 1 : √2"
+      ],
+      "beats": 3
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "w": 23.77,
+      "h": 10.97,
+      "label": "Tennis court",
+      "sub": "261 m²"
+    },
+    {
+      "w": 105,
+      "h": 68,
+      "label": "Football pitch",
+      "sub": "7,140 m²"
+    },
+    {
+      "w": 4000,
+      "h": 853,
+      "label": "Central Park",
+      "sub": "3.41 km²"
+    },
+    {
+      "w": 21600,
+      "h": 2700,
+      "label": "Manhattan",
+      "sub": "59 km²"
+    },
+    {
+      "area": 242495000000.0,
+      "label": "The UK (same area)",
+      "sub": "242,495 km²"
+    },
+    {
+      "area": 9830000000000.0,
+      "label": "The USA (same area)",
+      "sub": "9.83 million km²"
+    },
+    {
+      "area": 510070000000000.0,
+      "label": "Earth's whole surface",
+      "sub": "510 million km²"
+    }
+  ],
+  "cover": {
+    "t": 9.0
+  },
+  "package": {
+    "title": "Double A Sheet Of A4 Until It Covers The Earth",
+    "alt_titles": [
+      "How Many Doublings To Cover Earth In Paper?",
+      "Why A4 Paper Is That Exact Size"
+    ],
+    "description": [
+      "Put two A4 sheets side by side and you get A3. Two A3s make A2, then A1, then A0, exactly 1 m². Every A-size has the same 1 : √2 shape, so you can keep doubling forever.",
+      "",
+      "{steps}",
+      "",
+      "After 53 doublings the sheet is 563 million km², bigger than Earth's whole surface (510 million km²)."
+    ],
+    "steps": {
+      "4": "A0",
+      "13": "bigger than a tennis court",
+      "17": "bigger than a football pitch",
+      "26": "bigger than Central Park",
+      "30": "bigger than Manhattan",
+      "42": "bigger than the UK",
+      "48": "bigger than the USA",
+      "53": "bigger than the Earth"
+    },
+    "step_format": "{n} doublings: {q} ({note})",
+    "question": "Which doubling surprised you? 👇",
+    "hashtags": [
+      "math",
+      "paper",
+      "satisfying",
+      "exponential"
+    ],
+    "pinned": "A-sizes are defined so that cutting one in half gives the next size with the same shape: the sides are in the ratio 1 : √2 (ISO 216) 📄",
+    "tags": [
+      "a4 paper",
+      "iso 216",
+      "paper sizes",
+      "exponential growth",
+      "math shorts"
+    ],
+    "tiktok": "Double a sheet of A4 until it covers the whole Earth. How many times? 📄 #math #paper #exponential",
+    "reels": "53 doublings turn one sheet of A4 into a sheet that covers the Earth 🌍 Follow @packedbuh for more #math #exponential",
+    "sources": [
+      "ISO 216: A0 = 1 m², sides in ratio 1 : √2",
+      "Earth's surface 510.07 million km² (CIA World Factbook)",
+      "Tennis court 23.77 × 10.97 m; pitch 105 × 68 m; Central Park 3.41 km²; Manhattan land 58.7 km²; UK 242,495 km²; USA 9.83 million km²"
+    ]
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "slug": "transistors",
+  "topic": "transistors per chip (Moore's law)",
+  "unit": "count",
+  "bpm": 120,
+  "quantity": {
+    "values": [
+      2300,
+      29000,
+      275000,
+      1180000.0,
+      3100000.0,
+      42000000.0,
+      291000000.0,
+      1170000000.0,
+      6900000000.0,
+      16000000000.0,
+      114000000000.0,
+      208000000000.0,
+      4000000000000.0
+    ],
+    "labels": [
+      "1971 · INTEL 4004",
+      "1978 · INTEL 8086",
+      "1985 · INTEL 386",
+      "1989 · INTEL 486",
+      "1993 · PENTIUM",
+      "2000 · PENTIUM 4",
+      "2006 · CORE 2 DUO",
+      "2010 · CORE I7",
+      "2018 · APPLE A12",
+      "2020 · APPLE M1",
+      "2022 · APPLE M1 ULTRA",
+      "2024 · NVIDIA B200",
+      "2024 · CEREBRAS WSE-3"
+    ]
+  },
+  "start": 0,
+  "hook": [
+    "HOW MANY TRANSISTORS",
+    "FIT ON ONE CHIP NOW?"
+  ],
+  "counter": [
+    "{label}",
+    "{q} transistors"
+  ],
+  "ruler_min": 1000,
+  "column": {
+    "width": 300,
+    "color": "mint",
+    "fill": 0.11
+  },
+  "acts": [
+    {
+      "type": "climb",
+      "to": 12,
+      "beats": 1,
+      "final_rise_beats": 2,
+      "callouts": {
+        "9": "MORE THAN PEOPLE ON EARTH",
+        "10": "MORE THAN NEURONS IN YOUR BRAIN"
+      },
+      "pause_after": {
+        "9": 1,
+        "10": 1
+      }
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "4 TRILLION",
+        "ON A SINGLE CHIP"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "AT LEAST 10× THE STARS",
+        "IN THE MILKY WAY"
+      ],
+      "beats": 4
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "q": 8300000000.0,
+      "label": "People on Earth",
+      "sub": "8.3 billion",
+      "glyph": "person"
+    },
+    {
+      "q": 86000000000.0,
+      "label": "Neurons in your brain",
+      "sub": "~86 billion",
+      "glyph": "star"
+    },
+    {
+      "q": 400000000000.0,
+      "label": "Stars in the Milky Way",
+      "sub": "up to ~400 billion",
+      "glyph": "star"
+    }
+  ],
+  "cover": {
+    "t": 5.6
+  },
+  "package": {
+    "title": "How Many Transistors Fit On One Chip Now?",
+    "alt_titles": [
+      "From 2,300 To 4 Trillion Transistors",
+      "Moore's Law In 15 Seconds"
+    ],
+    "description": [
+      "In 1971 Intel's first microprocessor, the 4004, had 2,300 transistors. Here's how that number grew:",
+      "",
+      "{steps}",
+      "",
+      "Cerebras' WSE-3 is a wafer-sized chip with 4 trillion transistors: at least 10× the stars in the Milky Way (100 to 400 billion). From 2,300 to NVIDIA's 208-billion B200 is about 26 doublings in 53 years, one every ~2 years: Moore's law."
+    ],
+    "steps": {
+      "0": "",
+      "3": "",
+      "6": "",
+      "9": "",
+      "10": "",
+      "11": "",
+      "12": ""
+    },
+    "step_format": "{label}: {q}",
+    "question": "What was the first computer you owned? 👇",
+    "hashtags": [
+      "tech",
+      "math",
+      "computers",
+      "satisfying"
+    ],
+    "pinned": "Apple's M1 Ultra (114 billion) already has more transistors than your brain has neurons (~86 billion) 🧠",
+    "tags": [
+      "transistors",
+      "moores law",
+      "intel 4004",
+      "cerebras",
+      "tech shorts"
+    ],
+    "tiktok": "From 2,300 transistors in 1971 to 4 trillion on one chip 🤯 #tech #computers #math",
+    "reels": "One chip now has more transistors than the Milky Way has stars 🌌 Follow @packedbuh for more #tech #math",
+    "sources": [
+      "Intel 4004: 2,300 transistors (intel.com museum)",
+      "NVIDIA B200: 208 billion (allaboutcircuits.com)",
+      "Cerebras WSE-3: 4 trillion (IEEE Spectrum)",
+      "Milky Way: 100 to 400 billion stars; human brain ~86 billion neurons (Azevedo et al. 2009)",
+      "8086 29k, 386 275k, 486 1.18M, Pentium 3.1M, Pentium 4 42M, Core 2 Duo 291M, Core i7 (Gulftown) 1.17B, A12 6.9B, M1 16B, M1 Ultra 114B: manufacturer figures"
+    ]
+  }
+}

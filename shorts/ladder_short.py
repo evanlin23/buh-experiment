@@ -263,6 +263,11 @@ class LadderShort:
                     else:
                         mix.add(self.T[m], mix.bell(hz(lad[min(m - self.start, 39)])), 0.30)
                         mix.add(self.T[m], mix.sweep(0.2, 3000, 700, 1.0) * np.exp(-mix.t(0.2) * 16), 0.10)
+                    if self.spec.get("step_sound") == "paper":      # a paper slap on every doubling
+                        g = 0.6 if fast else 1.0
+                        mix.add(self.T[m], mix.sweep(0.07, 5000, 900, 1.0) * np.exp(-mix.t(0.07) * 60), 0.22 * g)
+                        thump = np.sin(2 * np.pi * 95 * mix.t(0.12)) * np.exp(-mix.t(0.12) * 35)
+                        mix.add(self.T[m], thump, 0.25 * g)
             elif kind == "payoff":
                 big = a.get("size") == "big"
                 lead = 1.0 if prev and prev["type"] == "climb" and not prev["interval"] < 0.4 else 0.35
@@ -296,7 +301,10 @@ class LadderShort:
                 nf = np.array([self.rewind_n(t) for t in grid])
                 lad_rw = ladder("D3", 30)
                 span = a["n_from"] - self.start
+                stride = max(1, round(span / 20))        # ~20 distinct notes, not a smeared glissando
                 for m in range(a["n_from"] - 1, self.start - 1, -1):
+                    if (m - self.start) % stride and m != self.start:
+                        continue
                     idx = np.nonzero(nf <= m)[0]
                     if len(idx):
                         j = int((m - self.start) / max(1, span) * 21)
@@ -368,11 +376,17 @@ class LadderShort:
             f.poly([(BAR_X - 14 - w, GROUND_Y), (BAR_X - 14 - w, top), (BAR_X - 14, top), (BAR_X - 14, GROUND_Y)],
                    colr, 0, 1.0, fill=col.get("fill", 0.13))
             f.line([(BAR_X - 14 - w, top), (BAR_X - 14, top)], colr, 5, 0.9)
+            cyc = round(5 * self.duration / (2 * math.pi))         # whole cycles per loop, so the seam is clean
             for i in range(1, 4):                # ripples on the surface, moving with time
-                cyc = round(5 * self.duration / (2 * math.pi))     # whole cycles per loop, so the seam is clean
-                yy = top + 22 * i + 6 * math.sin(2 * math.pi * cyc * t / self.duration + i)
+                yy = top + 22 * i + 9 * math.sin(2 * math.pi * cyc * t / self.duration + i)
                 if yy < GROUND_Y - 4:
-                    f.line([(BAR_X - 14 - w, yy), (BAR_X - 14, yy)], colr, 2, 0.25 / i)
+                    f.line([(BAR_X - 14 - w, yy), (BAR_X - 14, yy)], colr, 2, 0.4 / i)
+            rng = np.random.default_rng(17)      # sparkles rising through the column, periodic over the loop
+            hpx = GROUND_Y - top
+            for i in range(22):
+                fx, f0, cy_ = rng.uniform(0.06, 0.94), rng.uniform(0, 1), int(rng.integers(2, 5))
+                fr = (f0 + cy_ * t / self.duration) % 1.0
+                f.dot(BAR_X - 14 - w + fx * w, GROUND_Y - fr * hpx, 3.2, C["core"], 0.55 * math.sin(math.pi * fr))
         pulse = max([1 - (t - tm) / 0.25 for tm in self.T.values() if 0 <= t - tm < 0.25], default=0.0)
         f.line([(BAR_X, GROUND_Y), (BAR_X, GROUND_Y - max(bar_px, 1.5))], C["warm"], 18 + 10 * pulse)
         f.dot(BAR_X, GROUND_Y - bar_px, 6 + 6 * pulse, C["core"], 0.9)

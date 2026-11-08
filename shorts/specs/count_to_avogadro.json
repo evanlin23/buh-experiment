@@ -1,0 +1,165 @@
+{
+  "slug": "count_to_avogadro",
+  "topic": "counting to Avogadro's number",
+  "unit": "count",
+  "bpm": 120,
+  "quantity": {
+    "values": [
+      3600,
+      86400,
+      604800,
+      31560000.0,
+      2525000000.0,
+      142000000000.0,
+      9470000000000.0,
+      2083000000000000.0,
+      1.894e+16,
+      1.433e+17,
+      4.351e+17,
+      6.022e+23
+    ],
+    "labels": [
+      "COUNT FOR AN HOUR",
+      "COUNT FOR A DAY",
+      "COUNT FOR A WEEK",
+      "COUNT FOR A YEAR",
+      "COUNT FOR A LIFETIME",
+      "SINCE THE PYRAMIDS",
+      "SINCE THE FIRST HUMANS",
+      "SINCE THE DINOSAURS DIED",
+      "SINCE THE FIRST ANIMALS",
+      "SINCE EARTH FORMED",
+      "SINCE THE BIG BANG",
+      "AVOGADRO'S NUMBER"
+    ],
+    "words": [
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "you reach",
+      "the target:"
+    ]
+  },
+  "start": 0,
+  "hook": [
+    "COUNT ONE NUMBER PER SECOND",
+    "HOW LONG UNTIL 6 × 10²³?"
+  ],
+  "counter": [
+    "{label}",
+    "{word} {q}"
+  ],
+  "ruler_min": 1000,
+  "column": {
+    "width": 300,
+    "color": "pink",
+    "fill": 0.1
+  },
+  "acts": [
+    {
+      "type": "climb",
+      "to": 11,
+      "beats": 1,
+      "final_rise_beats": 2,
+      "callouts": {
+        "10": "STILL NOT EVEN CLOSE"
+      },
+      "pause_after": {
+        "4": 1,
+        "10": 1
+      }
+    },
+    {
+      "type": "payoff",
+      "headline": [
+        "1.38 MILLION TIMES",
+        "THE AGE OF THE UNIVERSE"
+      ],
+      "beats": 2,
+      "size": "big"
+    },
+    {
+      "type": "card",
+      "headline": [
+        "AND THAT'S HOW MANY MOLECULES",
+        "ARE IN ONE SIP OF WATER"
+      ],
+      "beats": 4
+    },
+    {
+      "type": "rewind",
+      "beats": 4,
+      "hold_beats": 0.5
+    }
+  ],
+  "marks": [
+    {
+      "q": 8300000000.0,
+      "label": "People on Earth",
+      "sub": "8.3 billion",
+      "glyph": "person"
+    },
+    {
+      "q": 2e+16,
+      "label": "Ants on Earth",
+      "sub": "~20 quadrillion",
+      "glyph": "star"
+    }
+  ],
+  "cover": {
+    "t": 5.4
+  },
+  "package": {
+    "title": "How Long To Count To Avogadro's Number?",
+    "alt_titles": [
+      "Count To 6 × 10²³ And You'll Need 1.38 Million Universes",
+      "The Number In Every Sip Of Water"
+    ],
+    "description": [
+      "Avogadro's number, 6.022 × 10²³, is how many molecules are in 18 grams of water (one mole). Count to it at one number per second:",
+      "",
+      "{steps}",
+      "",
+      "Counting since the Big Bang (13.8 billion years) only gets you to 435 quadrillion. To reach 6.022 × 10²³ you'd need 1.38 million times the age of the universe."
+    ],
+    "steps": {
+      "1": "",
+      "4": "",
+      "5": "",
+      "7": "",
+      "9": "",
+      "10": ""
+    },
+    "step_format": "{label}: {q}",
+    "question": "How far do you think you'd get? 👇",
+    "hashtags": [
+      "math",
+      "science",
+      "chemistry",
+      "satisfying"
+    ],
+    "pinned": "One mole of water is 18 g: about one sip, holding 6.022 × 10²³ molecules 💧",
+    "tags": [
+      "avogadro's number",
+      "mole",
+      "counting",
+      "big numbers",
+      "science shorts"
+    ],
+    "tiktok": "Count one number per second. How long until Avogadro's number? 🤯 #math #science #chemistry",
+    "reels": "Counting to Avogadro's number takes 1.38 million universes ⏳ Follow @packedbuh for more #math #science",
+    "sources": [
+      "NIST: Avogadro constant 6.02214076 × 10²³ (exact)",
+      "Planck 2018: age of the universe 13.787 billion years",
+      "Ants: ~20 quadrillion (Schultheiss et al., PNAS 2022)",
+      "Earth 4.54 billion years; dinosaurs extinct 66 million years ago; Homo sapiens ~300,000 years; first animals ~600 million years ago; Great Pyramid ~4,500 years old"
+    ]
+  }
+}

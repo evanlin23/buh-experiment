@@ -32,15 +32,16 @@ from engine import DEFAULT_HANDLE, Video, render_stills, render_video  # noqa: E
 from ladder_short import LadderShort  # noqa: E402
 from race_short import RaceShort  # noqa: E402
 from reveal_short import RevealShort  # noqa: E402
+from area_short import AreaShort  # noqa: E402
 
-TEMPLATES = {"ladder": LadderShort, "race": RaceShort, "reveal": RevealShort}
+TEMPLATES = {"ladder": LadderShort, "race": RaceShort, "reveal": RevealShort, "area": AreaShort}
 
 
 def scene_for(v, spec):
     return TEMPLATES[spec.get("template", "ladder")](v, spec)
 
 PUBLISHED = os.path.join(HERE, "specs", "published.json")
-SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "race_short.py", "reveal_short.py", "units.py"]
+SOURCES = ["engine.py", "ladder.py", "ladder_short.py", "race_short.py", "reveal_short.py", "area_short.py", "units.py"]
 
 
 def load(paths):
@@ -144,12 +145,22 @@ def main():
         for p in problems:
             print("  -", p)
         sys.exit(2)
-    results = [make_one(p, s, args) for p, s in specs]
+    results = []
+    for p, s in specs:
+        try:
+            results.append(make_one(p, s, args))
+        except Exception as e:                      # one broken spec must not stop the batch
+            import traceback
+            traceback.print_exc()
+            results.append(dict(slug=s.get("slug", p), status="ERROR", secs=0, fails=[f"{type(e).__name__}: {e}"], rendered=False))
     print("\nslug                         status  length  time   notes")
     for r in results:
         notes = r.get("sheet", "") if r["status"] == "review" else ("failed: " + ", ".join(r["fails"]) if r["fails"] else
                                                                      ("rendered" if r["rendered"] else "up to date"))
         print(f"{r['slug']:28s} {r['status']:6s}  {r.get('dur', 0):5.1f}s {r['secs']:5.0f}s  {notes}")
+    for r in results:
+        if r["status"] == "ERROR":
+            print(f"  {r['slug']}: {r['fails'][0]}")
     sys.exit(0 if all(r["status"] in ("PASS", "review") for r in results) else 1)
 
 

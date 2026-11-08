@@ -180,7 +180,7 @@ class RevealShort:
                 w = min(1.0, (t - t0) / 0.2)
                 ncur = int(2 ** (10 + 8 * min(1.0, (t - t0) / 0.6)))
             else:
-                prev, cur = self.bonus[-1]["shape"], self.main
+                prev, cur = (self.bonus[-1]["shape"] if self.bonus else self.main), self.main
                 w, ncur = min(1.0, (t - self.T_BACK) / (self.T_REW - self.T_BACK)), 2 ** self.nb
             pn = 2 ** self.nb if prev is self.main else 2 ** 18
             if w < 1:

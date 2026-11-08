@@ -57,9 +57,18 @@ def length(m):
 def count(x):
     if x < 1e6:
         return f"{x:,.0f}"
-    if x < 1e24:
+    if x < 1e23:
         return _named(x)
-    return sci(x)
+    return sci(x)                  # 6.02 × 10²³ reads better than "602 sextillion"
+
+
+def area(m2):
+    if m2 < 1:
+        return f"{m2 * 1e4:,.0f} cm²"
+    if m2 < 1e6:
+        return f"{_sig(m2)} m²"
+    k = m2 / 1e6
+    return f"{_sig(k)} km²" if k < 1e6 else f"{_named(k)} km²"
 
 
 def count_exact(x):
@@ -99,4 +108,4 @@ def clock(s):
     return f"{(m // 60) % 24:02d}:{m % 60:02d}"
 
 
-FORMAT = {"clock": clock, "length": length, "count": count, "count_exact": count_exact, "time": time, "mass": mass}
+FORMAT = {"area": area, "clock": clock, "length": length, "count": count, "count_exact": count_exact, "time": time, "mass": mass}
