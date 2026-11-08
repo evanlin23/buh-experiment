@@ -14,6 +14,7 @@ lag their drawings and every note lands on its event. House rules are built in:
 motion on frame 1, no hold without motion or sound, the last frame equals the first.
 """
 import math
+import re
 
 import numpy as np
 
@@ -213,8 +214,11 @@ class LadderShort:
         fields = dict(n=f"{n:,}", S="" if n == 1 else "S", s="" if n == 1 else "s", q=self.fmt(q),
                       q_exact=units.count_exact(q))
         for name, fd in self.spec.get("fields", {}).items():
-            fields[name] = units.FORMAT[fd["unit"]](_eval(fd["formula"], n, self._q_params))
+            val = units.FORMAT[fd["unit"]](_eval(fd["formula"], n, self._q_params))
+            fields[name] = val.upper() if fd.get("upper") else val
         l1, l2 = self.spec["counter"]
+        plural = lambda m: m.group(1) if abs(q - 1) < 1e-9 else m.group(2)  # noqa: E731  {pl:person,people}
+        l1, l2 = (re.sub(r"\{pl:([^,}]*),([^}]*)\}", plural, x) for x in (l1, l2))
         return l1.format(**fields), l2.format(**fields)
 
     # ---------------------------------------------------------------- sound
@@ -260,9 +264,11 @@ class LadderShort:
                     qmain = self.state(a["t0"])[1]
                     if cmp_["q"] > qmain:
                         mix.add(a["t0"] + self._rise(a) * self._ease_inv(qmain / cmp_["q"]), mix.bell(hz("D6"), 1.4), 0.16, 0.3)
-                else:
-                    for i in range(6):
-                        mix.add(a["t0"] + 0.2 + i * 0.2, mix.grain(hz(twinkle[rng.integers(8)])), 0.07, rng.uniform(-.6, .6))
+                else:                            # no moving bar: keep a pulse on every beat, never dead air
+                    chord = ladder("D5", 6)
+                    for i in range(int(round((a["t1"] - a["t0"]) / self.beat))):
+                        mix.add(a["t0"] + i * self.beat, mix.pluck(hz(chord[i % 6]), 0.35), 0.13, (i % 3 - 1) * 0.3)
+                        mix.add(a["t0"] + i * self.beat + self.beat / 2, mix.grain(hz(twinkle[rng.integers(8)])), 0.08)
             elif kind == "rewind":
                 grid = np.arange(a["t0"], a["t_end_rewind"], 1 / 1000)
                 nf = np.array([self.rewind_n(t) for t in grid])
@@ -347,6 +353,12 @@ class LadderShort:
                 f.line([(x, GROUND_Y), (x, GROUND_Y - h)], C["pink"], 14, alpha)
                 f.label(cmp_["label"], cmp_.get("sub", ""), x, GROUND_Y - h - 66, a=alpha, px=28, anchor="mm", sub_color=C["pink"])
 
+        for a in self.acts:                      # bar-less cards pulse on the beat
+            if a["type"] == "card" and not a.get("compare") and a["t0"] <= t < a["t1"]:
+                v = ((t - a["t0"]) % self.beat) / self.beat
+                f.circle(BAR_X, GROUND_Y - bar_px, 20 + 160 * v, C["mint"], 3, 0.7 * (1 - v))
+                f.flash = max(f.flash, 0.25 * (1 - v))
+
         for a in self.acts:                      # payoff flash + ring
             if a["type"] == "payoff" and 0 <= t - a["t0"] < 1.5:
                 s = 1.4 if a.get("size") == "big" else 1.0
@@ -370,7 +382,7 @@ class LadderShort:
                 self._draw_head(f, cur)
 
         l1, l2 = self.counter_text(n)
-        f.text(l1, 540, 300, 66, C["white"], "Bold")
+        f.text(l1, 540, 300, min(66, self._fit(l1, 66)), C["white"], "Bold")
         f.text(l2, 540, 384, min(44, self._fit(l2, 44)), C["mint"], "Bold")
         if act["type"] == "climb":
             for step, text in act.get("callouts", {}).items():

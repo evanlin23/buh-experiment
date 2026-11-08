@@ -71,7 +71,7 @@ def time(s):
         return f"{s / 60:.0f} minutes"
     if s < 86400:
         h, mnt = int(s // 3600), int(round((s % 3600) / 60))
-        return f"{h} h {mnt:02d} min" if mnt else f"{h} hours"
+        return f"{h} h {mnt:02d} min" if mnt else (f"{h} hour" if h == 1 else f"{h} hours")
     if s < 60 * 86400:
         return f"{s / 86400:.1f} days".replace(".0 ", " ")
     if s < 2 * YEAR:
@@ -91,4 +91,10 @@ def mass(kg):
     return f"{_sig(t)} tonnes" if t < 1e6 else f"{_named(t)} tonnes"
 
 
-FORMAT = {"length": length, "count": count, "count_exact": count_exact, "time": time, "mass": mass}
+def clock(s):
+    """Time of day from midnight, 24-hour: 00:00, 08:15"""
+    m = int(round(s / 60))
+    return f"{(m // 60) % 24:02d}:{m % 60:02d}"
+
+
+FORMAT = {"clock": clock, "length": length, "count": count, "count_exact": count_exact, "time": time, "mass": mass}

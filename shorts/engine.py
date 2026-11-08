@@ -345,17 +345,25 @@ class Mixer:
             ir = lfilter([0.3], [1, -0.7], ir)
             ir /= np.sqrt((ir ** 2).sum())
             ch += fftconvolve(ch, ir)[:self.n] * wet
-        mix = np.stack([self.L, self.R], 1)
-        mix -= mix.mean(0)
-        mix = np.tanh(1.4 * mix / (np.abs(mix).max() + 1e-9)) / np.tanh(1.4)
+        dry = np.stack([self.L, self.R], 1)
+        dry -= dry.mean(0)
+        dry /= np.abs(dry).max() + 1e-9
         fade = int(0.03 * SR)
-        mix[-fade:] *= np.linspace(1, 0, fade)[:, None]
         raw = path + ".raw.wav"
-        wavfile.write(raw, SR, mix.astype(np.float32))
-        meas = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af",
-                               f"loudnorm=I={lufs}:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
-                              capture_output=True, text=True).stderr
-        m = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
+        drive = 1.4
+        for _ in range(5):
+            # soft saturation; more drive lowers the crest factor until the loudness target
+            # fits under the -1.5 dBTP ceiling (a dynamic mix otherwise lands quiet)
+            mix = np.tanh(drive * dry) / np.tanh(drive)
+            mix[-fade:] *= np.linspace(1, 0, fade)[:, None]
+            wavfile.write(raw, SR, mix.astype(np.float32))
+            meas = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af",
+                                   f"loudnorm=I={lufs}:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
+                                  capture_output=True, text=True).stderr
+            m = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
+            if float(m["input_tp"]) + (lufs - float(m["input_i"])) <= -1.7:
+                break
+            drive *= 1.7
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-af",
                         f"loudnorm=I={lufs}:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
                         f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:linear=true",

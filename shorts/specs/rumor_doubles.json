@@ -1,0 +1,50 @@
+{
+  "slug": "rumor_doubles",
+  "status": "draft: market OPEN but demand unproven; facts verified",
+  "topic": "rumor doubling every 15 minutes",
+  "unit": "count",
+  "bpm": 120,
+  "quantity": {"formula": "2**n"},
+  "start": 0,
+  "hook": ["A RUMOR DOUBLES", "EVERY 15 MINUTES"],
+  "counter": ["{clock}", "{q} {pl:person knows,people know}"],
+  "fields": {"clock": {"formula": "n * 15 * 60", "unit": "clock"}},
+  "ruler_min": 1,
+  "acts": [
+    {"type": "climb", "to": 11, "beats": 1, "callouts": {"5": "A WHOLE CLASSROOM", "11": "A WHOLE SCHOOL"}},
+    {"type": "climb", "to": 33, "beats": 0.5, "tail_beats": 1.5},
+    {"type": "payoff", "headline": ["EVERYONE ON EARTH", "IN 8 HOURS 15 MINUTES"], "beats": 2, "size": "big"},
+    {"type": "card", "headline": ["START IT AT MIDNIGHT", "THE PLANET KNOWS BY BREAKFAST"], "beats": 3},
+    {"type": "rewind", "beats": 4, "hold_beats": 0.5}
+  ],
+  "marks": [
+    {"q": 30, "label": "A classroom", "sub": "30 people", "glyph": "person"},
+    {"q": 2000, "label": "A big school", "sub": "2,000 people", "glyph": "person"},
+    {"q": 90000, "label": "Wembley Stadium", "sub": "90,000 seats", "glyph": "star"},
+    {"q": 9e6, "label": "London", "sub": "9 million people", "glyph": "star"},
+    {"q": 1.24e8, "label": "Japan", "sub": "124 million people", "glyph": "planet"},
+    {"q": 1.45e9, "label": "India", "sub": "1.45 billion people", "glyph": "planet"},
+    {"q": 8.3e9, "label": "Everyone on Earth", "sub": "8.3 billion people", "glyph": "planet"}
+  ],
+  "cover": {"t": 9.0},
+  "package": {
+    "title": "A Rumor Doubles Every 15 Minutes. When Does Everyone Know?",
+    "alt_titles": ["How Fast Does A Rumor Reach Everyone?"],
+    "description": [
+      "One person tells a secret. Every 15 minutes, everyone who knows tells one more person, so the number who know doubles.",
+      "",
+      "{steps}",
+      "",
+      "2³³ = 8.6 billion, more than everyone on Earth (8.3 billion), after 33 rounds: 8 hours 15 minutes. Start at midnight and the whole planet knows by breakfast. That's exponential growth."
+    ],
+    "steps": {"5": "a classroom", "11": "a big school", "17": "Wembley Stadium", "24": "London", "27": "Japan", "31": "India", "33": "everyone on Earth"},
+    "step_format": "Round {n}: {q} people ({note})",
+    "question": "Which round surprised you? 👇",
+    "hashtags": ["math", "exponential", "satisfying", "science"],
+    "pinned": "Real rumors slow down once most people already know (that's the logistic curve), but the first 30 rounds are pure doubling 📈",
+    "tags": ["exponential growth", "doubling", "rumor math", "math shorts"],
+    "tiktok": "One rumor, doubling every 15 minutes. How long until all 8.3 billion people know? #math #exponential #science",
+    "reels": "A rumor doubles every 15 minutes. The whole planet knows by breakfast 🌍 Follow @packedbuh for more #math #exponential",
+    "sources": ["2^33 = 8,589,934,592", "World population ~8.3 billion (2026, Worldometer)", "Wembley Stadium capacity 90,000"]
+  }
+}
