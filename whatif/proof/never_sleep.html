@@ -25,10 +25,10 @@
 <body>
 <div id="stage"></div>
 <script src="../lib/stage.js"></script>
+<script src="never_sleep_vo.js"></script>
 <script>
 const { svg, html, seg, ease, lerp, clamp, spring, popText, popAt, popCues, odometer, puppet, hangingStar, camera, rng } = PT;
-const FPS = 24, DUR = 16.5;
-window.SCENE = { duration: DUR, fps: FPS, width: 1920, height: 1080 };
+const FPS = 24;
 const CUES = [];
 const C = { wall: "#263457", wall2: "#2e3e66", sky0: "#0e152d", sky1: "#26365f", trim: "#3d4f80", cream: "#f6ecd9", kraft: "#d4a777",
   ink: "#1c1f2e", lamp: "#ffb45e", moon: "#f3e7c4", wood: "#7b4a36", woodDk: "#5e3829", floor: "#3a2e40", rug: "#5b3f63",
@@ -38,10 +38,32 @@ const stage = document.getElementById("stage");
 stage.style.perspective = "2600px";
 PT.defs(stage);
 
-/* Timeline (seconds). Everything below reads from here, picture and sound alike. */
-const T = { head: 0.35, headOut: 3.05, clockStop: 3.35, ticket: 3.55, rollA: 3.95, rollB: 6.0, say1: 4.15, say2: 5.05,
-  turnA: 6.45, turnB: 7.25, title: 7.55, helix: 8.25, ring: 9.25, bars: 9.55, barsVal: 10.45, card: 11.05, kicker: 11.6,
-  fillA: 12.0, fillB: 14.5, chime: 14.75, end: DUR };
+/* Timeline (seconds). Everything below reads from here, picture and sound alike.
+ * With narration (never_sleep_vo.js), every beat is keyed to the word that calls for it;
+ * without it, the fixed silent timing is used. */
+let T, TITLE_TIMES = null;
+if (window.VO) {
+  const off = VO.offset, norm = (x) => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const nth = (word, n = 1, key = "s") => {
+    const hits = VO.words.filter((w) => norm(w.w) === norm(word) || (word === "dec2" && norm(w.w).startsWith("dec")));
+    if (hits.length < n) throw new Error(`narration has no ${n}× "${word}"`);
+    return hits[n - 1][key] + off;
+  };
+  const w = (x, n) => nth(x, n), e = (x, n) => nth(x, n || 1, "e");
+  T = { head: w("what") - 0.05, headOut: e("ever") + 0.35, clockStop: w("247") + 0.2, ticket: w("by") - 0.2,
+    rollA: w("thats"), rollB: e("hours"), say1: w("everyone") - 0.05, say2: w("you", 2) - 0.05,
+    turnA: w("and") - 0.25, title: w("some") - 0.04, helix: w("one"), ring: w("dec2") - 0.12, bars: w("wake"),
+    barsVal: w("6") - 0.05, card: w("now") - 0.2, kicker: w("imagine"), fillA: w("by", 2), fillB: w("26") + 0.12,
+    chime: w("and", 3), end: e("months") + 1.7, vo: off };
+  T.turnB = T.turnA + 0.8;
+  TITLE_TIMES = ["some", "people", "really", "are", "built", "for", "less", "sleep"].map((x) => w(x) - 0.04);
+} else {
+  T = { head: 0.35, headOut: 3.05, clockStop: 3.35, ticket: 3.55, rollA: 3.95, rollB: 6.0, say1: 4.15, say2: 5.05,
+    turnA: 6.45, turnB: 7.25, title: 7.55, helix: 8.25, ring: 9.25, bars: 9.55, barsVal: 10.45, card: 11.05, kicker: 11.6,
+    fillA: 12.0, fillB: 14.5, chime: 14.75, end: 16.5 };
+}
+const DUR = T.end;
+window.SCENE = { duration: DUR, fps: FPS, width: 1920, height: 1080 };
 
 /* ===================================================================== SCENE B: the riso page */
 const B = html("div", { class: "scene", id: "B", style: { background: C.paper } }, stage);
@@ -333,16 +355,20 @@ CUES.push({ t: T.headOut, type: "fold" }, { t: T.clockStop, type: "clunk" }, { t
   { t: T.turnA, type: "whoosh" }, { t: T.turnB - 0.05, type: "flap" }, { t: T.helix, type: "draw", dur: 1.0 }, { t: T.ring, type: "pop" },
   { t: T.bars, type: "grow", dur: 0.9 }, { t: T.barsVal, type: "stamp" }, { t: T.card, type: "slide" }, { t: T.chime, type: "chime" });
 for (let s = 0.0; s < T.clockStop; s += 0.5 * Math.max(0.25, 1 - s / T.clockStop)) CUES.push({ t: s, type: "clocktick" });
-[T.title, T.title + 0.55].forEach((t, i) => titleB.words.forEach((w, j) => { if (w.line === i) CUES.push({ t: T.title + i * 0.55 + j * 0.09, type: "stamp", soft: 1 }); }));
+titleB.words.forEach((w, j) => {
+  const perLine = titleB.words.slice(0, j).filter((x) => x.line === w.line).length;
+  CUES.push({ t: TITLE_TIMES ? TITLE_TIMES[j] : T.title + w.line * 0.55 + perLine * 0.09, type: "stamp", soft: 1 });
+});
+if (window.VO) CUES.push({ t: T.vo, type: "vo", src: VO.src });
 CUES.push({ t: T.kicker, type: "stamp", soft: 1 });
 window.CUES = CUES;
 
 /* ===================================================================== seek */
-function stampWords(p, t, tIn, { stagger = 0.09, lineDelay = 0.55, dx = 0, dy = 0 } = {}) {
+function stampWords(p, t, tIn, { stagger = 0.09, lineDelay = 0.55, dx = 0, dy = 0, times = null } = {}) {
   const perLine = {};
-  p.words.forEach((w) => {
+  p.words.forEach((w, j) => {
     perLine[w.line] = (perLine[w.line] ?? -1) + 1;
-    const a = tIn + w.line * lineDelay + perLine[w.line] * stagger, u = ease.outCubic(seg(t, a, a + 0.2));
+    const a = times ? times[j] : tIn + w.line * lineDelay + perLine[w.line] * stagger, u = ease.outCubic(seg(t, a, a + 0.2));
     w.el.style.display = "inline-block";
     w.el.style.opacity = t >= a ? 1 : 0;
     const reg = lerp(16, 1, u);
@@ -383,7 +409,8 @@ window.seek = function (t) {
 
   // you: looking out of the window, then at us on "You don't."
   const lookU = ease.inOutCubic(seg(t, T.say2 - 0.1, T.say2 + 0.3));
-  const blinkAt = [1.9, 4.6, 6.1];
+  const blinkAt = [];
+  for (let b = 1.9, k = 0; b < T.turnB; b += 2.3 + 1.1 * ((k * 0.618) % 1), k++) blinkAt.push(b);
   const blink = Math.max(...blinkAt.map((b) => Math.max(0, 1 - Math.abs(t - b) / 0.07)));
   you.pose({ x: 930, y: 912, s: 1.42, bob: 2.2 * Math.sin(t * 1.9 + 1), head: lerp(-7, 2, lookU), look: lerp(-0.9, 0, lookU),
     armF: -9 - 2 * Math.sin(t * 1.9), armB: 9 + 2 * Math.sin(t * 1.9 + 0.5), brow: lerp(-4, 10, lookU), mouth: lookU > 0.5 ? "flat" : "smile", blink });
@@ -394,7 +421,7 @@ window.seek = function (t) {
   banner.style.transform = `translateY(${lerp(-420, 0, bd) - 520 * up}px) rotate(${bsw}deg)`;
   popAt(headline, t, T.head, { tOut: T.headOut });
   popAt(say1, t, T.say1, { tOut: T.say2 - 0.18 });
-  popAt(say2, t, T.say2, { tOut: T.turnA + 0.1 });
+  popAt(say2, t, T.say2, { tOut: window.VO ? T.ticket + 0.7 : T.turnA + 0.1 });
 
   // ticket: drops in on its string, swings, settles
   const tk = t - T.ticket;
@@ -420,8 +447,8 @@ window.seek = function (t) {
   /* ---------- scene B */
   const bu = ease.inOutSine(seg(t, T.turnA, T.end));
   Bin.style.transform = `scale(${lerp(1.0, 1.035, bu)}) translate(${lerp(8, -10, bu)}px, 0px)`;
-  stampWords(titleP, t, T.title, { dx: 0.55, dy: 0.35 });
-  stampWords(titleB, t, T.title, { dx: -0.1, dy: 0 });
+  stampWords(titleP, t, T.title, { dx: 0.55, dy: 0.35, times: TITLE_TIMES });
+  stampWords(titleB, t, T.title, { dx: -0.1, dy: 0, times: TITLE_TIMES });
   titleP.box.style.transform = "translate(5px, 4px)"; // the pink pass is always a hair out of register
   sec1.style.opacity = 1 - seg(t, T.card + 0.3, T.card + 0.5);
 

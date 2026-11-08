@@ -7,6 +7,7 @@ so a sound can't drift from the pixel event that causes it.
 """
 import json
 import os
+import subprocess
 import sys
 
 import numpy as np
@@ -126,7 +127,29 @@ def main(cues_path, out):
     room = low(m.noise(dur + 0.5), 500) * 0.004
     m.L += room
     m.R += room[::-1]
-    m.master(out, wet=0.18)
+
+    vo = next((c for c in spec["cues"] if c["type"] == "vo"), None)
+    if vo:
+        # Narration on top: the bed and foley sit 18 dB under the voice (RMS) and duck a further ~5 dB while it speaks.
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), vo["src"])
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
+                             capture_output=True, check=True).stdout
+        v = np.frombuffer(raw, np.float32).astype(np.float64)
+        i0 = int(round((vo["t"] - off) * SR))
+        v = v[:max(0, m.n - i0)]
+        ev = low(np.abs(v), 5)
+        ev = np.clip(ev / (np.percentile(ev, 95) + 1e-9), 0, 1)
+        vo_env = np.zeros(m.n)
+        vo_env[i0:i0 + len(ev)] = ev
+        bed = np.sqrt(np.mean(((m.L + m.R) / 2) ** 2)) + 1e-12
+        speech = np.sqrt(np.mean(v[ev > 0.25] ** 2))
+        g = speech * 10 ** (-18 / 20) / bed
+        duck = g * (1 - 0.45 * vo_env)
+        m.L *= duck
+        m.R *= duck
+        m.L[i0:i0 + len(v)] += v
+        m.R[i0:i0 + len(v)] += v
+    m.master(out, wet=0.12 if vo else 0.18)
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ Research and tooling for a YouTube Shorts channel in the "satisfying math/physic
 | `research/whatif-teardown.md` | **Long-form:** teardown of the viral "What if you aged backwards?" video and the reusable script template |
 | `docs/STYLE-WHATIF.md` | **Long-form:** the Paper Theatre house style (diorama story world + riso science pages) |
 | `whatif/render.cjs`, `whatif/lib/` | Frame-exact HTML/SVG scene renderer (headless Chromium → x264) and the stage kit: card filters, puppets, pop-up type, odometer |
-| `whatif/proof/` | 16.5 s proof clip ("What if you never had to sleep?") and the cast sheet |
+| `whatif/proof/` | Narrated proof clip ("What if you never had to sleep?"; Gemini voice Algieba, timed to the word) and the cast sheet |
 
 ## Setup
 
@@ -64,7 +64,7 @@ How it's built:
 ```bash
 cd whatif && npm install
 npm run stills    # five style frames in about 6 s
-npm run proof     # 16.5 s clip with sound, about 5 min on 3 workers
+npm run proof     # 38 s narrated clip, about 12 min on 3 workers
 ```
 
 Output goes to `renders/whatif_proof/`. See `docs/STYLE-WHATIF.md`.

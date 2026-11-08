@@ -116,7 +116,15 @@ async function renderRange(browser, o, k0, k1, fps, segPath, w, h) {
     const cues = path.join(tmp, "cues.json"), wav = path.join(tmp, "mix.wav");
     fs.writeFileSync(cues, JSON.stringify({ duration: n / fps, offset: kFrom / fps, cues: meta.cues }));
     const py = fs.existsSync(path.join(__dirname, "..", ".venv", "bin", "python")) ? path.join(__dirname, "..", ".venv", "bin", "python") : "python3";
-    execFileSync(py, ["-I", o.audio, cues, wav], { stdio: "inherit" });
+    try {
+      execFileSync(py, ["-I", o.audio, cues, wav], { stdio: "inherit" });
+    } catch (e) {
+      // Never throw away a long render because the mix failed: keep the frames and say how to finish.
+      fs.copyFileSync(silent, o.out);
+      console.error(`audio script failed; wrote the silent video to ${o.out}. Frames and cues kept in ${tmp}.\n` +
+        `Fix the script, then: ${py} -I ${o.audio} ${cues} ${wav} && ffmpeg -i ${silent} -i ${wav} -map 0:v -map 1:a -c:v copy -c:a aac ${o.out}`);
+      process.exit(1);
+    }
     execFileSync("ffmpeg", ["-v", "error", "-y", "-i", silent, "-i", wav, "-map", "0:v", "-map", "1:a",
       "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", o.out]);
   } else {

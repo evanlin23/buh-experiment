@@ -125,6 +125,13 @@ The reference's AGE/BODY box becomes a kraft tag hung on a string from a brass p
 
 ## Sound
 
+**Narration** comes first. Gemini 3.8 Flash TTS, voice `Algieba`:
+
+- Generate it with `python -I gemini_tts.py say Algieba SCRIPT.txt OUT.wav`, run from `buh-essays/voice`. That also writes word timings.
+- The free tier is about 10 requests a day. The longest single request so far returned 87 s of audio. Generate an episode one chapter per request, which keeps retakes cheap; a 6-minute episode is about 5–6 requests.
+- Scenes read the word timings from a `*_vo.js` file and put each beat on the word that calls for it. The clock stops on "two forty-seven", and the 26-year counter lands on "twenty-six".
+- The audio script puts the bed and foley 16 dB under the voice and ducks them about 5 dB more while it speaks.
+
 Everything is in `whatif/proof/never_sleep_audio.py`, built on the existing `shorts/engine.py` mixer.
 
 - **Paper foley on every cue the scene exports** (`window.CUES`):
@@ -168,6 +175,6 @@ Everything is in `whatif/proof/never_sleep_audio.py`, built on the existing `sho
 
 ## What's next
 
-- **Voice.** The style needs a narrator. The script template in `research/whatif-teardown.md` assumes 146 wpm second-person voice-over. Record or choose the voice before building scenes, then time `T` to the word timestamps; Whisper word timings worked well on the reference.
+- **Voice: done.** The narrator is Gemini 3.8 Flash TTS, voice `Algieba`, with the tuned prompt in `buh-essays/voice/gemini_tts.py`. It was picked by matching the reference narrator; the results are in `buh-essays/voice/RESULTS.md`. The narration is generated first; the scene's `T` timeline is then keyed to its Whisper word timings (`proof/never_sleep_vo.js`).
 - **Scene kit.** Build one reusable set per location (bedroom, classroom, hospital, street, café), plus a riso kit for charts, timelines, the life grid and diagrams. A 6-minute episode is roughly 12 story scenes and 4 riso pages.
 - **Thumbnail.** The title banner on its strings over a lit diorama, with the protagonist's face at 1.5× scale. Test it against the reference's style in a mock search grid.
