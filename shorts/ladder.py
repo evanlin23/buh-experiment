@@ -35,6 +35,7 @@ class LogCamera:
 # (width w * height, height 1) and scaled by its true height.
 LANDMARKS = {
     "grain": dict(h=0.004, label="Grain of wheat", sub="4 mm"),
+    "a4": dict(h=0.297, label="A4 sheet", sub="29.7 cm"),
     "spoon": dict(h=0.17, label="Teaspoon", sub="17 cm"),
     "bucket": dict(h=0.35, label="Bucket", sub="35 cm"),
     "person": dict(h=1.75, label="You", sub="1.75 m"),
@@ -90,6 +91,10 @@ def icon(f, kind, cam, x_m, color=C["mint"], a=1.0, width=4):
         f.circle(*P(.11, .82), .1 * h * cam.k, color, width, a); L([(.11, .72), (.11, 0)])
     elif kind == "bucket":
         L([(0, 1), (.12, 0), (.68, 0), (.8, 1)]); L([(0, 1), (.8, 1)])
+    elif kind == "a4":
+        L([(0, 0), (0, 1), (.707, 1), (.707, 0), (0, 0)])
+        for v in (.78, .66, .54, .42):
+            L([(.12, v), (.59, v)])
     elif kind == "grain":
         f.circle(*P(.5, .5), .5 * h * cam.k, color, width, a)
     return P
