@@ -51,20 +51,23 @@ def fmt_len(m):
 
 
 # ------------------------------------------------------------------ timeline
-BEAT = 0.5
-T = {n: BEAT * n for n in range(1, 7)}                    # folds 1-6, one per beat
-T.update({n: 3.0 + 1.0 * (n - 6) for n in range(7, 13)})  # folds 7-12, half time
-T.update({n: 14.5 + BEAT / 4 * (n - 13) for n in range(13, 43)})  # 13-42, sixteenths
-DUR = {n: 0.25 if n <= 6 else 0.45 if n <= 11 else 0.8 if n == 12 else 0.12 for n in T}
-T_PAY1, T_FACT, T_BONUS, T_PAY2 = 10.0, 12.0, 14.0, 18.5
-T_REW, T_REW_END, T_END = 21.5, 24.0, 24.5
+BEAT = 0.5                                                 # 120 BPM
+T = {1: -BEAT}                                             # the loop opens on 1 fold already made
+T.update({n: BEAT * (n - 2) + (BEAT if n >= 8 else 0) for n in range(2, 13)})  # folds 2-12, one per
+#   beat, with one extra beat after fold 7 so "A4 runs out" can be read
+T[2] = 1 / FPS          # fold 2 starts on frame 1, so frame 0 is exactly the loop's last frame (1 fold)
+T.update({n: 10.0 + BEAT / 4 * (n - 13) for n in range(13, 43)})  # 13-42, sixteenths
+DUR = {n: 0.3 if n <= 11 else 0.8 if n == 12 else 0.12 for n in T}
+T_PAY1, T_FACT, T_BONUS, T_PAY2 = 6.5, 8.0, 9.75, 14.0
+T_REW, T_REW_END, T_END = 16.0, 18.5, 18.8                 # rewind ends on 1 fold = frame 1
+TP_LEN = 1219.0                                            # Gallivan's toilet-paper strip (4,000 ft)
 
-BAR_X, GROUND_Y, VIEW_H = 770, 1300, 900
+BAR_X, GROUND_Y, VIEW_H = 820, 1300, 900
 LAD = ladder("D4", 12)          # D-major pentatonic, one rung per fold
 LAD_HI = ladder("D5", 10)
 
-BUILD_MARKS = [("a4", 130), ("person", 300), ("house", 420), ("pisa", 150),
-               ("pyramid", 250), ("eiffel", 450), ("burj", 600)]
+BUILD_MARKS = [("rice", 640), ("coin", 730), ("card", 590), ("a4", 150), ("person", 330), ("house", 440),
+               ("pisa", 170), ("pyramid", 270), ("eiffel", 470), ("burj", 620)]
 COSMIC = [(8849, "Mount Everest", "8,849 m", "mount"), (1e5, "Edge of space", "100 km", "line"),
           (2.02e7, "GPS satellites", "20,200 km up", "star"), (4.0075e7, "Around the Earth", "40,075 km", "planet"), (3.844e8, "The Moon", "384,400 km", "moon"),
           (5.46e10, "Mars at its closest", "55 million km", "planet"), (1.496e11, "The Sun", "150 million km", "sun"), (7.78e11, "Jupiter's orbit", "778 million km", "planet"),
@@ -76,7 +79,7 @@ COSMIC = [(8849, "Mount Everest", "8,849 m", "mount"), (1e5, "Edge of space", "1
 
 def rewind_n(t):
     u = (t - T_REW) / (T_REW_END - T_REW)
-    return 42 * (1 - ease(u))
+    return 1 + 41 * (1 - ease(u))
 
 
 def log_L(nf):
@@ -91,16 +94,33 @@ def state(t):
     """(folds shown on the counter, bar height in metres)."""
     if t >= T_REW:
         nf = rewind_n(t)
-        if nf <= 0:
-            return 0, 0.0
-        bar = math.exp(log_L(nf)) if nf >= 1 else L(1) * nf
-        return int(math.ceil(nf - 1e-9)), bar
+        return int(math.ceil(nf - 1e-9)), math.exp(log_L(nf))
     n = max([k for k in T if T[k] <= t], default=0)
     if n == 0:
         return 0, 0.0
     u = ease_out((t - T[n]) / DUR[n])
     a = math.log(L(n - 1)) if n > 1 else math.log(L(1) / 4)
     return n, math.exp(lerp(a, math.log(L(n)), u))
+
+
+def floor_for(n):
+    """Folds 5-7 frame the A4 sheet, for the 'still fits / runs out' beat."""
+    return 0.42 if 5 <= n <= 7 else 1e-9
+
+
+def tp_height(t):
+    """Gallivan's real 1.2 km toilet-paper strip rising beside ours during the fact card."""
+    if t < T_FACT:
+        return 0.0
+    return TP_LEN * ease((t - T_FACT) / 0.9)
+
+
+def ease_inv(y):
+    lo, hi = 0.0, 1.0
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if ease(mid) < y else (lo, mid)
+    return lo
 
 
 def headline_key(t):
@@ -126,10 +146,11 @@ HEADLINES = {
 
 class Scene:
     duration = T_END
-    key_times = [0.0, 1.6, 3.1, 4.3, 6.4, 8.3, 9.7, 10.4, 12.5, 15.0, 16.0, 17.2, 18.8, 22.5, T_END - 1 / FPS]
+    key_times = [0.0, 0.4, 0.9, 1.4, 2.1, 2.9, 4.1, 5.1, 6.1, 6.8, 8.6, 10.6, 11.9, 14.3, 17.0, T_END - 1 / FPS]
 
     def __init__(self, v):
         self.v = v
+        self.tp_pass = T_FACT + 0.9 * ease_inv(L(12) / TP_LEN)
         # fine grid of bar heights for landmark-crossing times (sound and pulses)
         grid = np.arange(0, T_REW, 1 / 600)
         bars = np.array([state(t)[1] for t in grid])
@@ -143,6 +164,38 @@ class Scene:
             i = np.argmax(bars >= h)
             if bars[i] >= h:
                 self.cross[name] = grid[i]
+        # camera track: follows the strip with a short lag (so every fold overshoots and
+        # settles), and pushes out slowly through the holds, so the frame is never still
+        dt = 1 / 240
+        self.cam_t = np.arange(0, T_END + dt, dt)
+        logs, cur = [], None
+        for t in self.cam_t:
+            target = self._target(t)
+            cur = target if cur is None else cur + (target - cur) * (1 - math.exp(-dt / 0.16))
+            if t > T_END - 0.3:                      # land exactly on frame 1's framing
+                cur = lerp(cur, target, ease((t - (T_END - 0.3)) / 0.25))
+            logs.append(cur)
+        self.cam_log = np.array(logs)
+
+    def _target(self, t):
+        n, bar = state(t)
+        return math.log(max(bar / 0.72, floor_for(n))) + self._push(t)
+
+    @staticmethod
+    def _push(t):
+        """Extra log-zoom during holds; continuous, and back to 0 before the loop point."""
+        def ramp(t0, t1, amount, back):
+            if t < t0:
+                return 0.0
+            if t < t1:
+                return amount * (t - t0) / (t1 - t0)
+            return amount * (1 - ease((t - t1) / back))
+        return ramp(T_PAY1, T_BONUS, 0.35, 0.5) + ramp(T_PAY2, T_REW, 0.25, 0.6)
+
+    def world_h(self, t, bar):
+        lg = float(np.interp(t, self.cam_t, self.cam_log))
+        # keep the strip between 55% and 86% of the view: never into the text, never lost
+        return min(max(math.exp(lg), bar / 0.86), max(bar / 0.55, floor_for(state(t)[0])))
 
     # -------------------------------------------------------------- sound
     def audio(self, mix):
@@ -152,10 +205,17 @@ class Scene:
         for kind, _ in BUILD_MARKS:                 # passing a landmark
             if kind in self.cross and kind != "a4":
                 mix.add(self.cross[kind], mix.pluck(hz("F#6"), 0.5), 0.10, 0.3)
-        mix.add(T_PAY1 - 1.5, mix.sweep(1.5, 300, 7000) * np.linspace(0, 1, int(1.5 * 48000)) ** 2, 0.08)
+        mix.add(T_PAY1 - 1.0, mix.sweep(1.0, 300, 7000) * np.linspace(0, 1, 48000) ** 2, 0.08)
         mix.payoff(T_PAY1)
+        twinkle = ladder("D6", 8)
+        rng = np.random.default_rng(5)
+        for i in range(6):                           # sparkle under the payoff tail
+            mix.add(T_PAY1 + 0.35 + i * 0.2, mix.grain(hz(twinkle[rng.integers(8)])), 0.08, rng.uniform(-.6, .6))
         mix.add(T_FACT, mix.bell(hz("A5"), 1.2), 0.14, -0.2)
-        mix.add(T_FACT + 0.25, mix.bell(hz("D6"), 1.4), 0.14, 0.2)
+        mix.add(T_FACT, mix.sweep(1.0, 400, 3500, 1.2) * np.linspace(0, 1, 48000), 0.05, 0.4)
+        for i in range(8):                           # the toilet-paper strip ticking up
+            mix.add(T_FACT + 0.1 + i * 0.11, mix.pluck(hz(ladder("A4", 8)[i]), 0.25, decay=14), 0.08, 0.4)
+        mix.add(self.tp_pass, mix.bell(hz("D6"), 1.4), 0.16, 0.3)
         mix.add(T_BONUS, mix.sweep(0.5, 400, 6000) * np.linspace(0, 1, 24000) ** 2, 0.07)
         for i, n in enumerate(range(13, 43)):       # the race to the Milky Way
             mix.add(T[n], mix.pluck(hz(LAD_HI[i % 10]), 0.3), 0.10 + 0.08 * i / 29, (i % 5 - 2) * 0.15)
@@ -165,11 +225,13 @@ class Scene:
         mix.add(T_PAY2 - 0.35, mix.sweep(0.35, 500, 8000) * np.linspace(0, 1, int(0.35 * 48000)) ** 2, 0.08)
         mix.payoff(T_PAY2, chord="D2 A2 D3 F#3 A3 E4 A4", top="A6", gain=1.25)
         mix.add(T_PAY2, mix.pad("D3 A3 D4 F#4 A4", 3.0, attack=0.3, decay=0.6), 0.25)
+        for i in range(12):                          # stars of the galaxy twinkling
+            mix.add(T_PAY2 + 0.4 + i * 0.13, mix.grain(hz(twinkle[rng.integers(8)]), 0.12), 0.11, rng.uniform(-.7, .7))
         # rewind: one note per fold un-done, falling, with a falling sweep under it
         grid = np.arange(T_REW, T_REW_END, 1 / 1000)
         nf = np.array([rewind_n(t) for t in grid])
         lad_rw = ladder("D3", 22)
-        for m in range(41, -1, -1):
+        for m in range(41, 0, -1):
             i = np.argmax(nf <= m)
             if nf[i] <= m:
                 mix.add(grid[i], mix.pluck(hz(lad_rw[m // 2]), 0.25, decay=14), 0.12)
@@ -180,15 +242,18 @@ class Scene:
     def draw(self, f, t):
         n, bar = state(t)
         cam = LogCamera(ground_y=GROUND_Y, screen_h=VIEW_H)
-        cam.set_height(max(0.42, bar / 0.72))
+        cam.set_height(self.world_h(t, bar))
         k = cam.k
         f.line([(60, GROUND_Y), (1020, GROUND_Y)], C["dim"], 3, 0.8)
+        self._particles(f, t)
+        a_r = (1 - ease((t - T_BONUS) / 0.3)) + ease((t - T_REW) / 0.4) if t >= T_BONUS else 1.0
+        self._ruler(f, cam, min(1.0, a_r))
 
         # landmarks at true size, labels from the same numbers
         for kind, x_px in BUILD_MARKS:
             h = LANDMARKS[kind]["h"]
             r = h / cam.world_h
-            a = ease((r - 0.012) / 0.03) * (1 - ease((r - 0.78) / 0.14))
+            a = ease((r - 0.012) / 0.03) * (1 - ease((r - 0.62) / 0.12))
             if a <= 0.01:
                 continue
             P = icon(f, kind, cam, (x_px - cam.x0) / k, C["mint"], a, 4)
@@ -230,6 +295,14 @@ class Scene:
             f.line([(BAR_X, GROUND_Y), (BAR_X, GROUND_Y - max(bar_px, 1.5))], C["warm"], w)
             f.dot(BAR_X, GROUND_Y - bar_px, 6 + 6 * pulse, C["core"], 0.9)
 
+        # the real record: 1.2 km of toilet paper rising beside the 879 m strip
+        a_tp = 1 - ease((t - T_BONUS) / 0.3) if t >= T_FACT else 0.0
+        h_tp = tp_height(t) * k
+        if a_tp > 0 and h_tp > 0:
+            x_tp = BAR_X + 120
+            f.line([(x_tp, GROUND_Y), (x_tp, GROUND_Y - h_tp)], C["pink"], 14, a_tp)
+            f.label("Toilet paper", "1.2 km", x_tp, GROUND_Y - h_tp - 66, a=a_tp, px=28, anchor="mm", sub_color=C["pink"])
+
         # payoff flashes
         for tp, s in ((T_PAY1, 1.0), (T_PAY2, 1.4)):
             if 0 <= t - tp < 1.5:
@@ -254,9 +327,41 @@ class Scene:
             f.text(f"{n} FOLD{'S' if n != 1 else ''}", 540, 300, 66, C["white"], "Bold")
             f.text(f"needs {fmt_len(L(n))} of paper", 540, 384, 44, C["mint"], "Bold")
         if T[6] <= t < T[7]:
-            f.text("STILL FITS ON A SHEET OF A4", 540, 452, 36, C["lav"], "ExtraBold", a=min(1, (t - T[6]) * 6))
-        elif T[7] <= t < T[8] + 0.6:
+            f.text("STILL FITS ON A4", 540, 452, 36, C["lav"], "ExtraBold", a=min(1, (t - T[6]) * 8))
+        elif T[7] <= t < T[8]:
             f.text("A4 RUNS OUT: THE 7-FOLD LIMIT", 540, 452, 36, C["lav"], "ExtraBold", a=min(1, (t - T[7]) * 6))
+
+    @staticmethod
+    def _ruler(f, cam, a):
+        """A 1-2-5 log ruler up the left edge; its ticks slide as the camera zooms."""
+        if a <= 0:
+            return
+        e0 = math.floor(math.log10(cam.world_h)) - 2
+        for e in range(e0, e0 + 4):
+            for m in (1, 2, 5):
+                v = m * 10.0 ** e
+                if v < 1e-4:
+                    continue
+                y = GROUND_Y - v * cam.k
+                if 520 < y < GROUND_Y - 4:
+                    big = m == 1
+                    f.line([(44, y), (66 if big else 58, y)], C["dim"], 3 if big else 2, a * (0.9 if big else 0.5))
+                    if big:
+                        f.text(fmt_len(v).replace(".0 ", " "), 74, y, 22, C["dim"], "SemiBold", anchor="lm", a=a * 0.9)
+        f.line([(44, 520), (44, GROUND_Y)], C["dim"], 2, a * 0.35)
+
+    @staticmethod
+    def _particles(f, t):
+        """Faint drifting motes. Each moves exactly one screen height per loop, and twinkles
+        at a whole number of cycles per loop, so the last frame still matches the first."""
+        rng = np.random.default_rng(11)
+        for i in range(34):
+            x0, y0 = rng.uniform(40, 1040), rng.uniform(0, 1920)
+            cyc, ph, r = rng.integers(1, 4), rng.uniform(0, 6.28), rng.uniform(1.6, 3.2)
+            y = (y0 - 1920 * t / T_END) % 1920
+            x = x0 + 12 * math.sin(2 * math.pi * t / T_END + ph)
+            a = 0.18 + 0.17 * math.sin(2 * math.pi * cyc * t / T_END + ph)
+            f.dot(x, y, r, C["lav"] if i % 3 else C["core"], a)
 
     def _head(self, f, key, a):
         l1, l2, p1, p2 = HEADLINES[key]

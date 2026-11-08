@@ -77,3 +77,33 @@ Running the formula for office paper (0.1 mm) gives better beats than the brief 
 - **Chaos game:** open, and the sonified version has 3.75M. Already rendered (`prototype/chaos_game_short.py`).
 - **Tautochrone:** open, and its sibling, the brachistochrone Short, has 101.7M. Needs a new title, not the "Why do they all land together?" pattern.
 - **Phantom traffic jam:** crowded, but the topic is trending right now: an 11.2M Short under a month old.
+
+## 4. Pacing check, and the retime
+
+I measured v1 of the build against the three reference hits with `tools/pacing.py`. Its counter changed often enough, but the picture sat still: 57% of frames had essentially no motion. The fixes:
+
+- Fold 2 starts on frame 1, and the camera starts zoomed in on the 0.3 mm strip.
+- Two folds per second, matching the #1 hit, with one extra beat after fold 7 for the "A4 runs out" line.
+- The camera follows the strip with a short lag, so each fold overshoots and settles, and it pushes out slowly during the holds.
+- A sliding scale ruler on the left edge.
+- Real objects at each early fold: rice, coin, bank card, A4.
+- The 1.2 km toilet-paper strip rises on the fact card.
+- Star twinkles play under the payoffs.
+- A drifting particle field, timed to loop exactly.
+
+| | MathMango moon (25.7M) | Dragon (1.9M) | Balls (1.9M) | v1 | **v4 (final)** |
+|---|---:|---:|---:|---:|---:|
+| Length | 30.8 s | 23.0 s | 26.0 s | 24.5 s | 18.8 s |
+| First motion | 0.03 s | 0.03 s | 1.8 s | 0.5 s | **0.03 s** |
+| Frames with no motion | 20% | 4% | 17% | 57% | **25%** |
+| Longest still stretch | 1.2 s | 0.5 s | 1.8 s | 2.1 s | **0.7 s** |
+| Sound events per second | 3.8 | 4.7 | 3.0 | 3.1 | **4.7** |
+| Longest stretch with no counter or headline change | 5.4 s | 2.2 s | 2.9 s | 2.5 s | **2.0 s** |
+
+Other v4 checks:
+
+| Check | Result |
+|---|---|
+| Loop seam (mean pixel difference, last frame vs first) | 0.15 |
+| Sync | 40 of 41 folds have a note within 30 ms; median offset 13 ms |
+| Loudness | −14.5 LUFS |

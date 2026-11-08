@@ -35,6 +35,9 @@ class LogCamera:
 # (width w * height, height 1) and scaled by its true height.
 LANDMARKS = {
     "grain": dict(h=0.004, label="Grain of wheat", sub="4 mm"),
+    "rice": dict(h=0.006, label="Grain of rice", sub="6 mm"),
+    "coin": dict(h=0.0243, label="Coin", sub="2.4 cm"),
+    "card": dict(h=0.0856, label="Bank card", sub="8.6 cm"),
     "a4": dict(h=0.297, label="A4 sheet", sub="29.7 cm"),
     "spoon": dict(h=0.17, label="Teaspoon", sub="17 cm"),
     "bucket": dict(h=0.35, label="Bucket", sub="35 cm"),
@@ -91,6 +94,17 @@ def icon(f, kind, cam, x_m, color=C["mint"], a=1.0, width=4):
         f.circle(*P(.11, .82), .1 * h * cam.k, color, width, a); L([(.11, .72), (.11, 0)])
     elif kind == "bucket":
         L([(0, 1), (.12, 0), (.68, 0), (.8, 1)]); L([(0, 1), (.8, 1)])
+    elif kind == "rice":
+        f.circle(*P(.2, .5), .0, color, width, a)
+        pts = [(.2 + .2 * math.cos(th), .5 + .5 * math.sin(th)) for th in [i * math.pi / 12 for i in range(25)]]
+        L(pts)
+    elif kind == "coin":
+        f.circle(*P(.5, .5), .5 * h * cam.k, color, width, a)
+        f.circle(*P(.5, .5), .38 * h * cam.k, color, max(1, width - 2), a * 0.6)
+    elif kind == "card":
+        L([(0, 0), (0, 1), (.63, 1), (.63, 0), (0, 0)])
+        L([(.1, .78), (.26, .78), (.26, .66), (.1, .66), (.1, .78)])
+        L([(.1, .22), (.5, .22)])
     elif kind == "a4":
         L([(0, 0), (0, 1), (.707, 1), (.707, 0), (0, 0)])
         for v in (.78, .66, .54, .42):
