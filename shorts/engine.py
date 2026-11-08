@@ -56,7 +56,7 @@ def rgba(color, a=1.0):
 class Video:
     """Output geometry. All scene coordinates are in 1080x1920 'design pixels'."""
 
-    def __init__(self, preview=False, handle="@yourchannel"):
+    def __init__(self, preview=False, handle="@packedbuh"):
         self.S = 0.5 if preview else 1.0
         self.W, self.H = int(1080 * self.S), int(1920 * self.S)
         self.handle = handle
@@ -382,27 +382,47 @@ def fmt_int(n):
     return f"{int(n):,}"
 
 
-# ------------------------------------------------------------------ run
-def run(make_scene):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("out")
-    ap.add_argument("--preview", action="store_true", help="render at 540x960 (faster)")
-    ap.add_argument("--stills", help="write key frames as PNGs into this directory and exit")
-    ap.add_argument("--at", type=float, nargs="*", help="times for --stills (default: scene.key_times)")
-    ap.add_argument("--handle", default="@yourchannel")
-    args = ap.parse_args()
-    v = Video(args.preview, args.handle)
+# ------------------------------------------------------------------ render
+DEFAULT_HANDLE = "@packedbuh"
+_WORKER = {}
+
+
+def _init_worker(make_scene, preview, handle):
+    v = Video(preview, handle)
+    _WORKER["v"], _WORKER["scene"] = v, make_scene(v)
+
+
+def _render_index(k):
+    f = Frame(_WORKER["v"])
+    _WORKER["scene"].draw(f, k / FPS)
+    return f.render(np.random.default_rng(k)).tobytes()
+
+
+def render_stills(make_scene, out_dir, times=None, preview=False, handle=DEFAULT_HANDLE, headline=None):
+    """Write PNG stills. Returns the list of paths."""
+    v = Video(preview, handle)
     scene = make_scene(v)
-    rng = np.random.default_rng(1)
-    nframes = int(round(scene.duration * FPS))
-    if args.stills:
-        os.makedirs(args.stills, exist_ok=True)
-        times = args.at or getattr(scene, "key_times", [0.0])
-        for t in times:
-            f = Frame(v)
+    os.makedirs(out_dir, exist_ok=True)
+    paths = []
+    for t in times or getattr(scene, "key_times", [0.0]):
+        f = Frame(v)
+        if headline is not None and hasattr(scene, "draw_cover"):
+            scene.draw_cover(f, t, headline)
+        else:
             scene.draw(f, t)
-            Image.fromarray(f.render(rng)).save(os.path.join(args.stills, f"t{t:05.2f}.png"))
-        return
+        path = os.path.join(out_dir, f"t{t:05.2f}.png")
+        Image.fromarray(f.render(np.random.default_rng(0))).save(path)
+        paths.append(path)
+    return paths
+
+
+def render_video(make_scene, out, preview=False, handle=DEFAULT_HANDLE, jobs=None, log=print):
+    """Render audio + all frames (in parallel worker processes) and mux to an mp4."""
+    import multiprocessing as mp
+    jobs = jobs or max(1, (os.cpu_count() or 2))
+    v = Video(preview, handle)
+    scene = make_scene(v)
+    nframes = int(round(scene.duration * FPS))
     with tempfile.TemporaryDirectory() as tmp:
         wav = os.path.join(tmp, "audio.wav")
         mix = Mixer(scene.duration)
@@ -412,13 +432,31 @@ def run(make_scene):
             ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{v.W}x{v.H}",
              "-r", str(FPS), "-i", "-", "-i", wav, "-c:v", "libx264", "-preset", "medium", "-crf", "17",
              "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart",
-             args.out], stdin=subprocess.PIPE)
-        for k in range(nframes):
-            f = Frame(v)
-            scene.draw(f, k / FPS)
-            enc.stdin.write(f.render(rng).tobytes())
-            if k % 90 == 0:
-                print(f"frame {k}/{nframes}", flush=True)
+             out], stdin=subprocess.PIPE)
+        ctx = mp.get_context("fork")
+        with ctx.Pool(jobs, initializer=_init_worker, initargs=(make_scene, preview, handle)) as pool:
+            for k, buf in enumerate(pool.imap(_render_index, range(nframes), chunksize=4)):
+                enc.stdin.write(buf)
+                if log and k % 150 == 0:
+                    log(f"  frame {k}/{nframes}")
         enc.stdin.close()
-        enc.wait()
-    print("wrote", args.out, f"({nframes} frames, {scene.duration:.2f}s)")
+        if enc.wait() != 0:
+            raise RuntimeError("ffmpeg failed")
+    return dict(frames=nframes, duration=scene.duration, size=(v.W, v.H))
+
+
+def run(make_scene):
+    """Command line for a single hand-written scene file."""
+    ap = argparse.ArgumentParser()
+    ap.add_argument("out")
+    ap.add_argument("--preview", action="store_true", help="render at 540x960 (faster)")
+    ap.add_argument("--stills", help="write key frames as PNGs into this directory and exit")
+    ap.add_argument("--at", type=float, nargs="*", help="times for --stills (default: scene.key_times)")
+    ap.add_argument("--handle", default=DEFAULT_HANDLE)
+    ap.add_argument("--jobs", type=int, default=None)
+    args = ap.parse_args()
+    if args.stills:
+        render_stills(make_scene, args.stills, args.at, args.preview, args.handle)
+        return
+    info = render_video(make_scene, args.out, args.preview, args.handle, args.jobs)
+    print("wrote", args.out, f"({info['frames']} frames, {info['duration']:.2f}s)")

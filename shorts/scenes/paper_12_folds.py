@@ -56,10 +56,12 @@ T = {1: -BEAT}                                             # the loop opens on 1
 T.update({n: BEAT * (n - 2) + (BEAT if n >= 8 else 0) for n in range(2, 13)})  # folds 2-12, one per
 #   beat, with one extra beat after fold 7 so "A4 runs out" can be read
 T[2] = 1 / FPS          # fold 2 starts on frame 1, so frame 0 is exactly the loop's last frame (1 fold)
-T.update({n: 10.0 + BEAT / 4 * (n - 13) for n in range(13, 43)})  # 13-42, sixteenths
+T.update({n: 9.25 + BEAT / 4 * (n - 13) for n in range(13, 43)})  # 13-42, sixteenths
 DUR = {n: 0.3 if n <= 11 else 0.8 if n == 12 else 0.12 for n in T}
-T_PAY1, T_FACT, T_BONUS, T_PAY2 = 6.5, 8.0, 9.75, 14.0
-T_REW, T_REW_END, T_END = 16.0, 18.5, 18.8                 # rewind ends on 1 fold = frame 1
+# No hold longer than ~1 s without a new number, headline or sound: a long still
+# payoff reads as "the Short is over" and gets swiped.
+T_PAY1, T_FACT, T_BONUS, T_PAY2 = 6.5, 7.5, 9.0, 13.25
+T_REW, T_REW_END, T_END = 14.25, 16.25, 16.5               # rewind ends on 1 fold = frame 1
 TP_LEN = 1219.0                                            # Gallivan's toilet-paper strip (4,000 ft)
 
 BAR_X, GROUND_Y, VIEW_H = 820, 1300, 900
@@ -146,7 +148,7 @@ HEADLINES = {
 
 class Scene:
     duration = T_END
-    key_times = [0.0, 0.4, 0.9, 1.4, 2.1, 2.9, 4.1, 5.1, 6.1, 6.8, 8.6, 10.6, 11.9, 14.3, 17.0, T_END - 1 / FPS]
+    key_times = [0.0, 0.9, 2.1, 2.9, 4.1, 5.1, 6.45, 6.8, 8.2, 9.9, 11.2, 12.4, 13.5, 14.4, 15.2, T_END - 1 / FPS]
 
     def __init__(self, v):
         self.v = v
@@ -209,8 +211,8 @@ class Scene:
         mix.payoff(T_PAY1)
         twinkle = ladder("D6", 8)
         rng = np.random.default_rng(5)
-        for i in range(6):                           # sparkle under the payoff tail
-            mix.add(T_PAY1 + 0.35 + i * 0.2, mix.grain(hz(twinkle[rng.integers(8)])), 0.08, rng.uniform(-.6, .6))
+        for i in range(5):                           # sparkle under the payoff tail
+            mix.add(T_PAY1 + 0.3 + i * 0.14, mix.grain(hz(twinkle[rng.integers(8)])), 0.08, rng.uniform(-.6, .6))
         mix.add(T_FACT, mix.bell(hz("A5"), 1.2), 0.14, -0.2)
         mix.add(T_FACT, mix.sweep(1.0, 400, 3500, 1.2) * np.linspace(0, 1, 48000), 0.05, 0.4)
         for i in range(8):                           # the toilet-paper strip ticking up
@@ -225,8 +227,8 @@ class Scene:
         mix.add(T_PAY2 - 0.35, mix.sweep(0.35, 500, 8000) * np.linspace(0, 1, int(0.35 * 48000)) ** 2, 0.08)
         mix.payoff(T_PAY2, chord="D2 A2 D3 F#3 A3 E4 A4", top="A6", gain=1.25)
         mix.add(T_PAY2, mix.pad("D3 A3 D4 F#4 A4", 3.0, attack=0.3, decay=0.6), 0.25)
-        for i in range(12):                          # stars of the galaxy twinkling
-            mix.add(T_PAY2 + 0.4 + i * 0.13, mix.grain(hz(twinkle[rng.integers(8)]), 0.12), 0.11, rng.uniform(-.7, .7))
+        for i in range(7):                           # stars of the galaxy twinkling
+            mix.add(T_PAY2 + 0.3 + i * 0.1, mix.grain(hz(twinkle[rng.integers(8)]), 0.12), 0.11, rng.uniform(-.7, .7))
         # rewind: one note per fold un-done, falling, with a falling sweep under it
         grid = np.arange(T_REW, T_REW_END, 1 / 1000)
         nf = np.array([rewind_n(t) for t in grid])

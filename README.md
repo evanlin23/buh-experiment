@@ -27,7 +27,7 @@ ffmpeg must be on `PATH`. The prototype uses the Inter font from `/usr/share/fon
 ## Render a scene
 
 ```bash
-.venv/bin/python shorts/scenes/paper_12_folds.py renders/paper_12_folds.mp4 --handle @yourchannel
+.venv/bin/python shorts/scenes/paper_12_folds.py renders/paper_12_folds.mp4 --handle @packedbuh
 ```
 
 `--preview` (540×960) and `--stills DIR [--at T ...]` work the same as below. A scene is a small class with
@@ -36,7 +36,7 @@ ffmpeg must be on `PATH`. The prototype uses the Inter font from `/usr/share/fon
 ## Render the prototype
 
 ```bash
-.venv/bin/python prototype/chaos_game_short.py renders/chaos_game.mp4 --handle @yourchannel
+.venv/bin/python prototype/chaos_game_short.py renders/chaos_game.mp4 --handle @packedbuh
 ```
 
 - `--preview` renders at 540×960, about 4× faster.

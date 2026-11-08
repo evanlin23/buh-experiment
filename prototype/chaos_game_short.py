@@ -30,7 +30,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("out")
 ap.add_argument("--preview", action="store_true", help="render at 540x960 (faster)")
 ap.add_argument("--stills", help="write key frames as PNGs into this directory and exit")
-ap.add_argument("--handle", default="@yourchannel")
+ap.add_argument("--handle", default="@packedbuh")
 ap.add_argument("--seed", type=int, default=20261108)
 args = ap.parse_args()
 
