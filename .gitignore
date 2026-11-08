@@ -1,0 +1,7 @@
+*.mp4
+*.wav
+renders/
+venv/
+.venv/
+__pycache__/
+analysis_out/
