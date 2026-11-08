@@ -17,6 +17,10 @@ Research and tooling for a YouTube Shorts channel in the "satisfying math/physic
 | `research/` | Niche analysis, idea audit, pacing study |
 | `tools/av_analyze.py`, `tools/pacing.py` | Measure any Short (yours or a competitor's) |
 | `prototype/chaos_game_short.py` | Standalone prototype for a future "reveal" template |
+| `research/whatif-teardown.md` | **Long-form:** teardown of the viral "What if you aged backwards?" video and the reusable script template |
+| `docs/STYLE-WHATIF.md` | **Long-form:** the Paper Theatre house style (diorama story world + riso science pages) |
+| `whatif/render.cjs`, `whatif/lib/` | Frame-exact HTML/SVG scene renderer (headless Chromium → x264) and the stage kit: card filters, puppets, pop-up type, odometer |
+| `whatif/proof/` | 16.5 s proof clip ("What if you never had to sleep?") and the cast sheet |
 
 ## Setup
 
@@ -54,6 +58,16 @@ How it's built:
 - The beat notes climb a D-major pentatonic ladder.
 - The payoff resolves on D. The rewind plays the ladder backwards and ends on the exact first frame, so the video loops cleanly.
 - Audio is normalised to −14 LUFS, YouTube's playback reference.
+
+## Render the long-form style proof
+
+```bash
+cd whatif && npm install
+npm run stills    # five style frames in about 6 s
+npm run proof     # 16.5 s clip with sound, about 5 min on 3 workers
+```
+
+Output goes to `renders/whatif_proof/`. See `docs/STYLE-WHATIF.md`.
 
 ## Analyse a Short
 

@@ -1,0 +1,502 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Never Sleep proof</title>
+<link rel="stylesheet" href="../lib/stage.css">
+<style>
+  .risoT { font-family: "Fraunces"; font-weight: 900; line-height: 0.98; letter-spacing: -0.015em; }
+  .risoT.blue { color: #0078bf; mix-blend-mode: multiply; }
+  .risoT.pink { color: #ff48b0; mix-blend-mode: multiply; }
+  .riso-label { font-family: "Bricolage"; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #0078bf; }
+  .riso-body { font-family: "Fraunces"; font-style: italic; font-weight: 600; color: #0078bf; }
+  .riso-num { font-family: "Bricolage"; font-weight: 800; color: #0078bf; }
+  .mul { mix-blend-mode: multiply; }
+  .headline.ink { color: #1c1f2e; text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 6px 8px rgba(60, 40, 20, 0.28); }
+  .headline.ink em { color: #e4572e; }
+  #ticket { position: absolute; left: 64px; top: 26px; width: 470px; height: 220px; transform-origin: 235px 34px; }
+  #ticket .t-label { position: absolute; left: 44px; top: 78px; font-family: "Bricolage"; font-weight: 700; font-size: 22px; letter-spacing: 0.18em; color: #5b3b22; }
+  #ticket .t-sub { position: absolute; left: 44px; top: 186px; font-family: "Fraunces"; font-style: italic; font-weight: 600; font-size: 22px; color: #6d4a2c; }
+  #ticket .odo { position: absolute; left: 40px; top: 108px; }
+  #card2 { position: absolute; left: 90px; top: 110px; width: 1740px; height: 890px; background: #f6efe1; border-radius: 6px;
+    box-shadow: 0 30px 60px rgba(58, 47, 34, 0.28), 0 6px 14px rgba(58, 47, 34, 0.18); overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../lib/stage.js"></script>
+<script>
+const { svg, html, seg, ease, lerp, clamp, spring, popText, popAt, popCues, odometer, puppet, hangingStar, camera, rng } = PT;
+const FPS = 24, DUR = 16.5;
+window.SCENE = { duration: DUR, fps: FPS, width: 1920, height: 1080 };
+const CUES = [];
+const C = { wall: "#263457", wall2: "#2e3e66", sky0: "#0e152d", sky1: "#26365f", trim: "#3d4f80", cream: "#f6ecd9", kraft: "#d4a777",
+  ink: "#1c1f2e", lamp: "#ffb45e", moon: "#f3e7c4", wood: "#7b4a36", woodDk: "#5e3829", floor: "#3a2e40", rug: "#5b3f63",
+  you: "#e4572e", partner: "#2a9d8f", curtain: "#cf8f2e", leaf: "#1f4a3d", blue: "#0078bf", pink: "#ff48b0", yellow: "#ffd400", paper: "#f3ebdb" };
+
+const stage = document.getElementById("stage");
+stage.style.perspective = "2600px";
+PT.defs(stage);
+
+/* Timeline (seconds). Everything below reads from here, picture and sound alike. */
+const T = { head: 0.35, headOut: 3.05, clockStop: 3.35, ticket: 3.55, rollA: 3.95, rollB: 6.0, say1: 4.15, say2: 5.05,
+  turnA: 6.45, turnB: 7.25, title: 7.55, helix: 8.25, ring: 9.25, bars: 9.55, barsVal: 10.45, card: 11.05, kicker: 11.6,
+  fillA: 12.0, fillB: 14.5, chime: 14.75, end: DUR };
+
+/* ===================================================================== SCENE B: the riso page */
+const B = html("div", { class: "scene", id: "B", style: { background: C.paper } }, stage);
+const Bin = html("div", { class: "layer" }, B);
+{
+  const s = svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080" }, Bin);
+  svg("rect", { x: -40, y: -40, width: 2000, height: 1160, fill: C.paper, filter: "url(#card0)" }, s);
+  // registration marks, half a millimetre out of register like a real riso pass
+  [[70, 70], [1850, 1010]].forEach(([x, y]) => {
+    [[C.blue, 0, 0], [C.pink, 2.5, -1.5]].forEach(([c, dx, dy]) => {
+      const g = svg("g", { stroke: c, "stroke-width": 2, fill: "none", class: "mul" }, s);
+      svg("circle", { cx: x + dx, cy: y + dy, r: 13 }, g);
+      svg("path", { d: `M ${x + dx - 22} ${y + dy} h 44 M ${x + dx} ${y + dy - 22} v 44` }, g);
+    });
+  });
+}
+html("div", { class: "riso-label", text: "What if you never had to sleep?  ·  ch. 3: what's real", style: { position: "absolute", left: "120px", top: "58px", fontSize: "20px", opacity: 0.85 } }, Bin);
+html("div", { class: "riso-num", text: "12", style: { position: "absolute", left: "940px", top: "1018px", fontSize: "26px", opacity: 0.8 } }, Bin);
+
+const sec1 = html("div", { class: "layer" }, Bin);
+const titleP = popText(sec1, ["Some people really are", "built for less sleep."], { cls: "risoT pink", size: 96, x: 150, y: 138, align: "left" });
+const titleB = popText(sec1, ["Some people really are", "built for less sleep."], { cls: "risoT blue", size: 96, x: 150, y: 138, align: "left" });
+
+// helix
+const HX = { x0: 150, x1: 900, cy: 600, A: 112, k: (2 * Math.PI) / 330 };
+const helixSvg = svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080", style: "position:absolute;inset:0" }, sec1);
+svg("clipPath", { id: "helixClip" }, svg("defs", {}, helixSvg)).appendChild(svg("rect", { id: "helixClipR", x: HX.x0 - 30, y: 300, width: 0, height: 600 }));
+const helixG = svg("g", { "clip-path": "url(#helixClip)", filter: "url(#ink)" }, helixSvg);
+const rungG = svg("g", {}, helixG);
+const RUNGS = [];
+for (let x = HX.x0 + 12; x < HX.x1; x += 34) RUNGS.push({ x, el: svg("line", { stroke: "url(#dotsBlue)", "stroke-width": 11, "stroke-linecap": "round" }, rungG) });
+const HI = 13; // the DEC2 rung
+RUNGS[HI].el.setAttribute("stroke", C.yellow); RUNGS[HI].el.setAttribute("stroke-width", 15); RUNGS[HI].el.setAttribute("class", "mul");
+const strandA = svg("path", { fill: "none", stroke: C.blue, "stroke-width": 15, "stroke-linecap": "round", class: "mul" }, helixG);
+const strandB = svg("path", { fill: "none", stroke: C.pink, "stroke-width": 15, "stroke-linecap": "round", class: "mul" }, helixG);
+const ring = svg("circle", { r: 74, fill: "none", stroke: C.pink, "stroke-width": 6, class: "mul", "stroke-dasharray": "465", "stroke-dashoffset": "465" }, helixSvg);
+const leader = svg("path", { fill: "none", stroke: C.blue, "stroke-width": 3, "stroke-dasharray": "6 7", class: "mul" }, helixSvg);
+const dec2 = html("div", { class: "riso-num", text: "DEC2", style: { position: "absolute", fontSize: "64px", letterSpacing: "0.02em" } }, sec1);
+const dec2sub = html("div", { class: "riso-label", text: "one letter changed", style: { position: "absolute", fontSize: "20px" } }, sec1);
+
+// bars
+const BAR = { x: 1080, y: 470, w: 82, h: 74, gap: 130 };
+const barSvg = svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080", style: "position:absolute;inset:0" }, sec1);
+html("div", { class: "riso-label", text: "Hours of sleep a night", style: { position: "absolute", left: BAR.x + "px", top: BAR.y - 78 + "px", fontSize: "22px" } }, sec1);
+const axis = svg("g", { stroke: C.blue, "stroke-width": 2, class: "mul", filter: "url(#ink)" }, barSvg);
+for (let h = 0; h <= 8; h++) {
+  svg("line", { x1: BAR.x + h * BAR.w, y1: BAR.y + 2 * BAR.gap - 30, x2: BAR.x + h * BAR.w, y2: BAR.y + 2 * BAR.gap - 18 }, axis);
+  const tx = svg("text", { x: BAR.x + h * BAR.w, y: BAR.y + 2 * BAR.gap + 14, "text-anchor": "middle", "font-family": "Bricolage", "font-weight": 700, "font-size": 22, fill: C.blue, stroke: "none" }, axis);
+  tx.textContent = h;
+}
+const bars = [
+  { label: "Most adults", hours: 8, val: "8 h", fill: "url(#dotsBlue)", tint: C.blue },
+  { label: "DEC2 carriers", hours: 6.25, val: "6¼ h", fill: "url(#dotsPink)", tint: C.pink },
+].map((b, i) => {
+  const y = BAR.y + i * BAR.gap;
+  const g = svg("g", { filter: "url(#ink)" }, barSvg);
+  const tint = svg("rect", { x: BAR.x, y, height: BAR.h, width: 0, fill: b.tint, opacity: 0.16, class: "mul" }, g);
+  const dots = svg("rect", { x: BAR.x + (i ? -2 : 2), y: y + (i ? 2 : -1), height: BAR.h, width: 0, fill: b.fill, class: "mul" }, g);
+  const lab = html("div", { class: "riso-label", text: b.label, style: { position: "absolute", left: BAR.x + "px", top: y - 32 + "px", fontSize: "19px", opacity: 0 } }, sec1);
+  const val = html("div", { class: "riso-num", text: b.val, style: { position: "absolute", top: y + 6 + "px", fontSize: "58px", color: i ? C.pink : C.blue, opacity: 0 } }, sec1);
+  return { ...b, y, tint, dots, lab, val };
+});
+const srcLine = html("div", { class: "riso-body", text: "A mother and daughter who wake up rested after about six hours. He et al., Science, 2009.",
+  style: { position: "absolute", left: BAR.x + "px", top: BAR.y + 2 * BAR.gap + 56 + "px", width: "700px", fontSize: "24px", lineHeight: "1.3", opacity: 0 } }, sec1);
+
+const turnCast = html("div", { style: { position: "absolute", inset: 0, pointerEvents: "none" } }, B);
+
+// card 2: the payoff
+const card2 = html("div", { id: "card2" }, B);
+{
+  const s = svg("svg", { width: 1740, height: 890, viewBox: "0 0 1740 890", style: "position:absolute;inset:0" }, card2);
+  svg("rect", { x: -20, y: -20, width: 1780, height: 930, fill: "#f6efe1", filter: "url(#card0)" }, s);
+}
+const kicker = html("div", { class: "riso-label", text: "Never sleep at all, and by 80 you get back", style: { position: "absolute", left: "80px", top: "96px", fontSize: "30px" } }, card2);
+const bigWrap = html("div", { style: { position: "absolute", left: "64px", top: "150px", height: "330px" } }, card2);
+const bigP = odometer(bigWrap, { digits: 2, size: 330, color: C.pink, commas: false, style: { position: "absolute", left: "9px", top: "7px", mixBlendMode: "multiply" } });
+const bigB = odometer(bigWrap, { digits: 2, size: 330, color: C.blue, commas: false, style: { position: "absolute", left: "0px", top: "0px", mixBlendMode: "multiply" } });
+[bigP, bigB].forEach((o) => (o.box.style.fontFamily = "Fraunces"));
+const yearsW = html("div", { class: "risoT blue", text: "years", style: { position: "absolute", left: "500px", top: "300px", fontSize: "132px" } }, card2);
+const subW = html("div", { class: "riso-body", text: "and 8 months of extra waking life.", style: { position: "absolute", left: "84px", top: "506px", fontSize: "50px" } }, card2);
+const mathW = html("div", { class: "riso-label", html: "80 years &nbsp;×&nbsp; 8 h ÷ 24 h &nbsp;=&nbsp; 26.7 years", style: { position: "absolute", left: "86px", top: "640px", fontSize: "26px", letterSpacing: "0.1em", opacity: 0.9 } }, card2);
+const gridSvg = svg("svg", { width: 1740, height: 890, viewBox: "0 0 1740 890", style: "position:absolute;inset:0" }, card2);
+const G = { x: 1020, y: 150, s: 52, gap: 13, cols: 10 };
+const gridLabel = html("div", { class: "riso-label", text: "1 square = 1 year of your life", style: { position: "absolute", left: G.x + "px", top: G.y + 8 * (G.s + G.gap) + 22 + "px", fontSize: "21px" } }, card2);
+const squares = [];
+const gridG = svg("g", { filter: "url(#ink)" }, gridSvg);
+for (let i = 0; i < 80; i++) {
+  const cx = G.x + (i % G.cols) * (G.s + G.gap), cy = G.y + Math.floor(i / G.cols) * (G.s + G.gap);
+  const out = svg("rect", { x: cx, y: cy, width: G.s, height: G.s, rx: 5, fill: "none", stroke: C.blue, "stroke-width": 3, class: "mul" }, gridG);
+  const fill = svg("rect", { x: cx + 4, y: cy + 4, width: 0, height: G.s - 8, rx: 3, fill: C.pink, class: "mul", opacity: 0 }, gridG);
+  const dots = svg("rect", { x: cx + 1, y: cy + 6, width: G.s - 6, height: G.s - 8, rx: 3, fill: "url(#dotsBlue)", class: "mul", opacity: 0 }, gridG);
+  squares.push({ out, fill, dots, cx, cy });
+}
+const GAINED = 80 / 3; // 26.67 squares
+const fillTimes = [];
+for (let i = 0; i < Math.ceil(GAINED); i++) fillTimes.push(T.fillA + (T.fillB - T.fillA) * ease.inOutSine(i / (Math.ceil(GAINED) - 1)));
+fillTimes.forEach((t, i) => CUES.push({ t, type: "fill", i }));
+
+/* ===================================================================== SCENE A: the bedroom diorama (front of the turning page) */
+const leaf = html("div", { class: "leaf" }, stage);
+const A = html("div", { class: "face front" }, leaf);
+const back = html("div", { class: "face back" }, leaf);
+{
+  const s = svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080", style: "position:absolute;inset:0" }, back);
+  svg("rect", { x: -40, y: -40, width: 2000, height: 1160, fill: "#efe6d4", filter: "url(#card0)" }, s);
+}
+const backShade = html("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(40,30,20,0.0), rgba(40,30,20,0.35))" } }, back);
+A.style.background = C.wall;
+const camLayers = [];
+function layer(depth, extra = {}) {
+  const d = html("div", { class: "layer", style: extra }, A);
+  const s = svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080" }, d);
+  camLayers.push([d, depth]);
+  return s;
+}
+const sdefs = svg("defs", {}, svg("svg", { width: 0, height: 0, style: "position:absolute" }, A));
+sdefs.innerHTML = `
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky0}"/><stop offset="1" stop-color="${C.sky1}"/></linearGradient>
+  <radialGradient id="lampGlow"><stop offset="0" stop-color="#ffcf8a" stop-opacity="0.95"/><stop offset="0.35" stop-color="#ff9e48" stop-opacity="0.35"/><stop offset="1" stop-color="#ff9e48" stop-opacity="0"/></radialGradient>
+  <radialGradient id="moonGlow"><stop offset="0" stop-color="#e9efff" stop-opacity="0.55"/><stop offset="1" stop-color="#e9efff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe8ff" stop-opacity="0.22"/><stop offset="1" stop-color="#dfe8ff" stop-opacity="0"/></linearGradient>
+  <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2d8"/><stop offset="1" stop-color="#ffd59a"/></linearGradient>
+  <clipPath id="win"><rect x="560" y="140" width="560" height="520"/></clipPath>
+  <pattern id="tri" width="46" height="40" patternUnits="userSpaceOnUse"><path d="M 8 30 L 23 8 L 38 30 Z" fill="#3fb5a5"/></pattern>`;
+
+// 0. wall
+const L0 = layer(0.5);
+svg("rect", { x: -300, y: -300, width: 2520, height: 1680, fill: C.wall, filter: "url(#card0)" }, L0);
+svg("rect", { x: -300, y: -300, width: 2520, height: 1100, fill: "url(#moons)", opacity: 0.7 }, L0);
+svg("rect", { x: -300, y: 730, width: 2520, height: 26, fill: C.wall2, filter: "url(#card1)" }, L0);
+
+// 1. window: sky, moon, hills, hanging stars, frame, sill
+const L1 = layer(0.6);
+const winG = svg("g", { "clip-path": "url(#win)" }, L1);
+svg("rect", { x: 560, y: 140, width: 560, height: 520, fill: "url(#sky)" }, winG);
+svg("circle", { cx: 745, cy: 285, r: 190, fill: "url(#moonGlow)" }, winG);
+const moon = svg("g", { filter: "url(#card1)" }, winG);
+svg("circle", { cx: 745, cy: 285, r: 60, fill: C.moon }, moon);
+[[722, 266, 11], [768, 300, 8], [740, 318, 6], [770, 262, 5]].forEach(([x, y, r]) => svg("circle", { cx: x, cy: y, r, fill: "#e0cfa2" }, moon));
+const hills = svg("g", { filter: "url(#card1)" }, winG);
+svg("path", { d: "M 540 600 Q 660 520 800 570 T 1140 540 L 1140 680 L 540 680 Z", fill: "#1d2a4c" }, hills);
+svg("path", { d: "M 540 640 Q 700 590 880 625 T 1140 610 L 1140 680 L 540 680 Z", fill: "#16203c" }, hills);
+const house = svg("g", { filter: "url(#card1)" }, winG);
+svg("path", { d: "M 950 575 L 985 548 L 1020 575 L 1020 612 L 950 612 Z", fill: "#121a31" }, house);
+const houseLight = svg("rect", { x: 975, y: 582, width: 14, height: 14, fill: "#ffcf7a" }, house);
+const stars = [[606, 70, 15, 1], [664, 150, 12, 2], [858, 52, 13, 3], [944, 120, 16, 4], [1048, 84, 12, 5], [1090, 190, 10, 6]]
+  .map(([x, len, r, seed]) => hangingStar(winG, { x, top: 140, len, r, seed }));
+svg("path", { d: "M 528 108 H 1152 V 692 H 528 Z M 560 140 V 660 H 1120 V 140 Z M 833 140 h 14 v 520 h -14 Z M 560 396 h 560 v 14 h -560 Z",
+  fill: C.trim, "fill-rule": "evenodd", filter: "url(#card2)" }, L1);
+svg("rect", { x: 500, y: 688, width: 680, height: 28, rx: 4, fill: "#c9b49a", filter: "url(#card2)" }, L1);
+
+// 1b. curtains on their own plane
+const Lc = layer(0.66);
+svg("rect", { x: 440, y: 88, width: 800, height: 12, rx: 6, fill: C.woodDk, filter: "url(#card2)" }, Lc);
+const curtL = svg("path", { d: "M 452 96 H 584 V 640 Q 562 662 540 640 Q 518 662 496 640 Q 474 662 452 640 Z", fill: C.curtain, filter: "url(#card3)" }, Lc);
+const curtR = svg("path", { d: "M 1096 96 H 1228 V 640 Q 1206 662 1184 640 Q 1162 662 1140 640 Q 1118 662 1096 640 Z", fill: C.curtain, filter: "url(#card3)" }, Lc);
+
+// 2. clock
+const Lk = layer(0.62);
+const clock = svg("g", { filter: "url(#card2)" }, Lk);
+const CK = { x: 1330, y: 260, r: 76 };
+svg("circle", { cx: CK.x, cy: CK.y, r: CK.r + 10, fill: C.woodDk }, clock);
+svg("circle", { cx: CK.x, cy: CK.y, r: CK.r, fill: C.cream }, clock);
+for (let i = 0; i < 12; i++) {
+  const a = (i * Math.PI) / 6, r1 = i % 3 ? CK.r - 12 : CK.r - 20;
+  svg("line", { x1: CK.x + r1 * Math.sin(a), y1: CK.y - r1 * Math.cos(a), x2: CK.x + (CK.r - 6) * Math.sin(a), y2: CK.y - (CK.r - 6) * Math.cos(a), stroke: C.ink, "stroke-width": i % 3 ? 3 : 5, "stroke-linecap": "round" }, clock);
+}
+const hHand = svg("rect", { x: CK.x - 4, y: CK.y - 44, width: 8, height: 50, rx: 4, fill: C.ink }, Lk);
+const mHand = svg("rect", { x: CK.x - 3, y: CK.y - 64, width: 6, height: 70, rx: 3, fill: C.you }, Lk);
+svg("circle", { cx: CK.x, cy: CK.y, r: 6, fill: "url(#brass)" }, Lk);
+const clockTag = html("div", { class: "label", text: "2:47 a.m.", style: { position: "absolute", left: CK.x - 70 + "px", top: CK.y + 104 + "px", width: "140px", textAlign: "center", fontSize: "24px", color: C.cream, opacity: 0 } }, A);
+
+// 3. floor + rug
+const Lf = layer(0.85);
+svg("rect", { x: -300, y: 756, width: 2520, height: 600, fill: C.floor, filter: "url(#card1)" }, Lf);
+for (let i = 0; i < 9; i++) svg("line", { x1: -300, y1: 800 + i * i * 7 + i * 22, x2: 2220, y2: 800 + i * i * 7 + i * 22, stroke: "#2f2535", "stroke-width": 3 }, Lf);
+const rug = svg("g", { filter: "url(#card2)" }, Lf);
+svg("ellipse", { cx: 930, cy: 930, rx: 560, ry: 82, fill: C.rug }, rug);
+svg("ellipse", { cx: 930, cy: 930, rx: 520, ry: 66, fill: "none", stroke: "#e2a86b", "stroke-width": 5, "stroke-dasharray": "2 16", "stroke-linecap": "round" }, rug);
+
+// 4. nightstand + lamp + books
+const Ll = layer(0.8);
+const stand = svg("g", { filter: "url(#card2)" }, Ll);
+svg("rect", { x: 170, y: 640, width: 250, height: 160, rx: 8, fill: C.wood }, stand);
+svg("rect", { x: 190, y: 690, width: 210, height: 12, rx: 4, fill: C.woodDk }, stand);
+svg("circle", { cx: 295, cy: 740, r: 8, fill: "url(#brass)" }, stand);
+svg("rect", { x: 186, y: 800, width: 18, height: 60, fill: C.woodDk }, stand);
+svg("rect", { x: 386, y: 800, width: 18, height: 60, fill: C.woodDk }, stand);
+const books = svg("g", { filter: "url(#card1)" }, Ll);
+svg("rect", { x: 330, y: 612, width: 80, height: 16, rx: 3, fill: C.partner }, books);
+svg("rect", { x: 336, y: 596, width: 70, height: 16, rx: 3, fill: C.curtain }, books);
+const lamp = svg("g", { filter: "url(#card2)" }, Ll);
+svg("rect", { x: 254, y: 520, width: 12, height: 120, fill: C.woodDk }, lamp);
+svg("ellipse", { cx: 260, cy: 640, rx: 46, ry: 10, fill: C.woodDk }, lamp);
+svg("path", { d: "M 196 524 L 222 430 L 298 430 L 324 524 Z", fill: "url(#shade)" }, lamp);
+
+// 5. bed with sleeping partner
+const Lb = layer(0.9);
+const bed = svg("g", { filter: "url(#card2)" }, Lb);
+svg("path", { d: "M 1250 760 V 520 Q 1250 470 1300 470 H 1720 Q 1770 470 1770 520 V 760 Z", fill: C.wood }, bed);
+svg("path", { d: "M 1290 520 H 1730 V 560 H 1290 Z", fill: C.woodDk, opacity: 0.6 }, bed);
+svg("rect", { x: 1170, y: 690, width: 680, height: 110, rx: 14, fill: "#e9dcc4" }, bed);
+svg("rect", { x: 1180, y: 790, width: 20, height: 70, fill: C.woodDk }, bed);
+svg("rect", { x: 1820, y: 790, width: 20, height: 70, fill: C.woodDk }, bed);
+const pillow = svg("ellipse", { cx: 1390, cy: 660, rx: 120, ry: 44, fill: C.cream, filter: "url(#card1)" }, Lb);
+const partnerHead = svg("g", { filter: "url(#card1)" }, Lb);
+svg("circle", { cx: 1392, cy: 628, r: 42, fill: C.kraft }, partnerHead);
+svg("path", { d: "M 1350 628 Q 1346 578 1392 576 Q 1438 578 1434 628 Q 1426 600 1392 598 Q 1360 600 1350 628 Z", fill: "#2a1f1d" }, partnerHead);
+svg("circle", { cx: 1428, cy: 584, r: 18, fill: "#2a1f1d" }, partnerHead);
+svg("path", { d: "M 1370 634 Q 1376 640 1382 634 M 1402 634 Q 1408 640 1414 634", stroke: C.ink, "stroke-width": 3.2, fill: "none", "stroke-linecap": "round" }, partnerHead);
+svg("ellipse", { cx: 1366, cy: 648, rx: 7, ry: 4.5, fill: "#e98b6d", opacity: 0.45 }, partnerHead);
+const blanket = svg("g", { filter: "url(#card3)" }, Lb);
+const blanketPath = "M 1170 700 Q 1280 650 1450 668 Q 1600 640 1850 690 L 1850 800 Q 1500 830 1170 800 Z";
+svg("path", { d: blanketPath, fill: C.partner }, blanket);
+svg("path", { d: blanketPath, fill: "url(#tri)", opacity: 0.55 }, blanket);
+svg("path", { d: "M 1170 706 Q 1280 656 1450 674 Q 1600 646 1850 696", stroke: C.cream, "stroke-width": 10, fill: "none", opacity: 0.9 }, blanket);
+const zs = [0, 1, 2].map((i) => {
+  const z = svg("text", { "font-family": "Fraunces", "font-style": "italic", "font-weight": 600, "font-size": 40 + i * 8, fill: C.cream, filter: "url(#lift)" }, Lb);
+  z.textContent = "z";
+  return z;
+});
+
+// 5b. moonbeam on the floor, behind you
+const Lbeam = layer(0.8, { mixBlendMode: "screen" });
+svg("polygon", { points: "560,690 1120,690 1460,1080 300,1080", fill: "url(#beam)" }, Lbeam);
+
+// 6. you
+const Lp = layer(1.0);
+const you = puppet(Lp, { shirt: C.you, pants: "#2b2f45", hair: "#3a2a22", hairStyle: "curly" });
+
+// 7. light
+const Lglow = layer(0.8, { mixBlendMode: "screen" });
+const lampGlow = svg("circle", { cx: 260, cy: 500, r: 560, fill: "url(#lampGlow)", opacity: 0.55 }, Lglow);
+svg("circle", { cx: 260, cy: 470, r: 70, fill: "#ffe2b0", opacity: 0.55, filter: "url(#glow)" }, Lglow);
+
+// 8. foreground leaves, out of focus
+const Lfg = layer(1.55);
+const leaves = svg("g", { filter: "url(#dof)" }, Lfg);
+[[-40, 1080, -28, 1.0], [60, 1110, -8, 0.85], [150, 1120, 18, 0.7]].forEach(([x, y, r, s]) => {
+  svg("path", { d: "M 0 0 C -60 -120 -40 -260 60 -330 C 140 -250 140 -110 0 0 Z", fill: "#2b6150", transform: `translate(${x - 30} ${y + 30}) rotate(${r}) scale(${s * 1.25})` }, leaves);
+});
+svg("path", { d: "M 1980 1100 C 1900 980 1880 900 1910 820 C 1990 880 2010 980 1980 1100 Z", fill: "#16352c" }, leaves);
+html("div", { class: "vignette" }, A);
+const turnShade = html("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0.65))", opacity: 0 } }, A);
+
+// type on the diorama
+// title banner: a card hung on two strings, the letters fold up off its face
+const banner = html("div", { style: { position: "absolute", left: "350px", top: "0px", width: "1220px", height: "372px", transformOrigin: "610px -400px" } }, A);
+{
+  const s = svg("svg", { width: 1220, height: 372, viewBox: "0 0 1220 372", style: "position:absolute;inset:0;overflow:visible" }, banner);
+  [150, 1070].forEach((x) => svg("line", { x1: x, y1: -900, x2: x, y2: 70, stroke: "#cdbf9f", "stroke-width": 2.2 }, s));
+  svg("path", { d: "M 30 52 H 1190 L 1204 70 V 340 L 1186 358 L 610 344 L 34 358 L 16 340 V 70 Z", fill: "#f3e6cc", filter: "url(#card3)" }, s);
+  svg("path", { d: "M 60 82 H 1160 V 318 L 610 306 L 60 318 Z", fill: "none", stroke: "#c96f4f", "stroke-width": 2, "stroke-dasharray": "2 9", "stroke-linecap": "round" }, s);
+  [150, 1070].forEach((x) => svg("circle", { cx: x, cy: 70, r: 8, fill: "url(#brass)" }, s));
+}
+const headline = popText(banner, ["What if you *never*", "had to sleep?"], { cls: "headline ink", size: 116, y: 92 });
+headline.box.style.width = "1220px";
+popCues(headline, T.head).forEach((t) => CUES.push({ t, type: "pop" }));
+const say1 = popText(A, ["Everyone sleeps."], { cls: "say", size: 66, y: 950 });
+const say2 = popText(A, ["You don't."], { cls: "say", size: 66, y: 950 });
+popCues(say1, T.say1).forEach((t) => CUES.push({ t, type: "pop", soft: 1 }));
+popCues(say2, T.say2).forEach((t) => CUES.push({ t, type: "pop", soft: 1 }));
+
+// ticket HUD
+const ticket = html("div", { id: "ticket" }, A);
+{
+  const s = svg("svg", { width: 470, height: 230, viewBox: "0 0 470 230", style: "position:absolute;inset:0;overflow:visible" }, ticket);
+  svg("path", { d: "M 235 -40 L 235 22", stroke: "#cdbf9f", "stroke-width": 2 }, s);
+  svg("path", { d: "M 40 40 H 430 L 452 62 V 206 L 430 226 H 40 L 18 206 V 62 Z", fill: "#e8cf9f", filter: "url(#card2)" }, s);
+  svg("circle", { cx: 235, cy: 34, r: 9, fill: "url(#brass)" }, s);
+  svg("path", { d: "M 40 172 H 430", stroke: "#b48a5a", "stroke-width": 2, "stroke-dasharray": "3 7" }, s);
+}
+html("div", { class: "t-label", text: "HOURS AWAKE INSTEAD" }, ticket);
+const odoA = odometer(ticket, { digits: 6, size: 64, color: "#3b2414" });
+html("div", { class: "t-sub", text: "by your 30th birthday" }, ticket);
+const HOURS30 = 30 * 365 * 8; // 87,600
+for (let k = 1; k <= 87; k++) {
+  // a tick each time the thousands digit turns
+  const u = k * 1000 / HOURS30;
+  let lo = 0, hi = 1;
+  for (let it = 0; it < 30; it++) { const m = (lo + hi) / 2; (ease.inOutCubic(m) < u ? (lo = m) : (hi = m)); }
+  CUES.push({ t: lerp(T.rollA, T.rollB, lo), type: "tick" });
+}
+
+const grainUpdate = PT.grain(stage, 0.26);
+const cam = camera(camLayers);
+
+CUES.push({ t: T.headOut, type: "fold" }, { t: T.clockStop, type: "clunk" }, { t: T.ticket, type: "flap" },
+  { t: T.turnA, type: "whoosh" }, { t: T.turnB - 0.05, type: "flap" }, { t: T.helix, type: "draw", dur: 1.0 }, { t: T.ring, type: "pop" },
+  { t: T.bars, type: "grow", dur: 0.9 }, { t: T.barsVal, type: "stamp" }, { t: T.card, type: "slide" }, { t: T.chime, type: "chime" });
+for (let s = 0.0; s < T.clockStop; s += 0.5 * Math.max(0.25, 1 - s / T.clockStop)) CUES.push({ t: s, type: "clocktick" });
+[T.title, T.title + 0.55].forEach((t, i) => titleB.words.forEach((w, j) => { if (w.line === i) CUES.push({ t: T.title + i * 0.55 + j * 0.09, type: "stamp", soft: 1 }); }));
+CUES.push({ t: T.kicker, type: "stamp", soft: 1 });
+window.CUES = CUES;
+
+/* ===================================================================== seek */
+function stampWords(p, t, tIn, { stagger = 0.09, lineDelay = 0.55, dx = 0, dy = 0 } = {}) {
+  const perLine = {};
+  p.words.forEach((w) => {
+    perLine[w.line] = (perLine[w.line] ?? -1) + 1;
+    const a = tIn + w.line * lineDelay + perLine[w.line] * stagger, u = ease.outCubic(seg(t, a, a + 0.2));
+    w.el.style.display = "inline-block";
+    w.el.style.opacity = t >= a ? 1 : 0;
+    const reg = lerp(16, 1, u);
+    w.el.style.transform = `translate(${dx * reg}px, ${dy * reg}px) scale(${lerp(1.16, 1, u)})`;
+  });
+}
+
+window.seek = function (t) {
+  grainUpdate(t, FPS);
+
+  /* ---------- scene A */
+  const pushU = ease.inOutSine(seg(t, 0, T.turnB));
+  cam({ x: lerp(-26, 30, pushU), y: lerp(6, -14, pushU), z: lerp(1.0, 1.075, pushU) });
+  stars.forEach((f) => f(t));
+  curtL.setAttribute("transform", `skewX(${0.8 * Math.sin(t * 1.3)})`);
+  curtR.setAttribute("transform", `skewX(${0.8 * Math.sin(t * 1.3 + 1.7)})`);
+  houseLight.setAttribute("opacity", t > 2.2 ? 0.25 : 1);
+  lampGlow.setAttribute("opacity", 0.5 + 0.04 * Math.sin(t * 9.1) * Math.sin(t * 3.3));
+
+  // clock time-lapse 23:10 -> 2:47, slowing into the stop
+  const cu = ease.outQuint(seg(t, 0, T.clockStop));
+  const minutes = lerp(23 * 60 + 10, 26 * 60 + 47, cu);
+  const mAng = (minutes % 60) * 6, hAng = ((minutes / 60) % 12) * 30;
+  mHand.setAttribute("transform", `rotate(${mAng} ${CK.x} ${CK.y})`);
+  hHand.setAttribute("transform", `rotate(${hAng} ${CK.x} ${CK.y})`);
+  const ct = spring(t - T.clockStop - 0.1, 0.5, 1.3);
+  clockTag.style.opacity = clamp((t - T.clockStop - 0.1) / 0.1);
+  clockTag.style.transform = `perspective(500px) rotateX(${90 * (1 - ct)}deg)`;
+
+  // partner breathes, z's drift up
+  blanket.setAttribute("transform", `translate(0 ${-2.2 * Math.sin(t * 1.9)})`);
+  zs.forEach((z, i) => {
+    const p = ((t * 0.45 + i / 3) % 1);
+    z.setAttribute("x", 1440 + 40 * p + 10 * Math.sin(p * 6 + i));
+    z.setAttribute("y", 600 - 160 * p);
+    z.setAttribute("opacity", Math.sin(Math.PI * p) * 0.95);
+  });
+
+  // you: looking out of the window, then at us on "You don't."
+  const lookU = ease.inOutCubic(seg(t, T.say2 - 0.1, T.say2 + 0.3));
+  const blinkAt = [1.9, 4.6, 6.1];
+  const blink = Math.max(...blinkAt.map((b) => Math.max(0, 1 - Math.abs(t - b) / 0.07)));
+  you.pose({ x: 930, y: 912, s: 1.42, bob: 2.2 * Math.sin(t * 1.9 + 1), head: lerp(-7, 2, lookU), look: lerp(-0.9, 0, lookU),
+    armF: -9 - 2 * Math.sin(t * 1.9), armB: 9 + 2 * Math.sin(t * 1.9 + 0.5), brow: lerp(-4, 10, lookU), mouth: lookU > 0.5 ? "flat" : "smile", blink });
+
+  // banner drops in on its strings, swings, then is hauled back up into the flies
+  const bd = spring(t + 0.25, 0.7, 1.1), up = ease.inCubic(seg(t, T.headOut + 0.15, T.headOut + 0.6));
+  const bsw = 1.6 * Math.exp(-Math.max(0, t) * 1.8) * Math.sin(t * 5.2 + 0.4);
+  banner.style.transform = `translateY(${lerp(-420, 0, bd) - 520 * up}px) rotate(${bsw}deg)`;
+  popAt(headline, t, T.head, { tOut: T.headOut });
+  popAt(say1, t, T.say1, { tOut: T.say2 - 0.18 });
+  popAt(say2, t, T.say2, { tOut: T.turnA + 0.1 });
+
+  // ticket: drops in on its string, swings, settles
+  const tk = t - T.ticket;
+  ticket.style.opacity = tk > 0 ? 1 : 0;
+  const drop = spring(tk, 0.55, 1.2);
+  const swing = tk > 0 ? 7 * Math.exp(-tk * 2.2) * Math.sin(tk * 7.5) : 0;
+  ticket.style.transform = `translateY(${lerp(-260, 0, drop)}px) rotate(${swing}deg)`;
+  const ru = seg(t, T.rollA, T.rollB), rv = HOURS30 * ease.inOutCubic(ru);
+  const speed = ru > 0 && ru < 1 ? HOURS30 * (ease.inOutCubic(Math.min(1, ru + 0.01)) - ease.inOutCubic(ru)) / ((T.rollB - T.rollA) * 0.01) / FPS : 0;
+  odoA.set(rv, speed);
+
+  /* ---------- page turn */
+  // The page is hinged on the left edge of the frame and swings away from us, so the next page shows from the right.
+  const tu = ease.inOutSine(seg(t, T.turnA, T.turnB));
+  const ang = 96 * tu;
+  leaf.style.transform = `rotateY(${ang}deg)`;
+  leaf.style.display = tu >= 1 ? "none" : "block";
+  turnShade.style.opacity = Math.sin((Math.PI / 2) * tu) * 0.85;
+  const edge = 1920 * Math.cos((ang * Math.PI) / 180);
+  turnCast.style.display = tu > 0 && tu < 1 ? "block" : "none";
+  turnCast.style.background = `linear-gradient(90deg, rgba(40,30,20,${0.55 * (1 - tu)}) 0px, rgba(40,30,20,${0.3 * (1 - tu)}) ${Math.max(0, edge)}px, rgba(40,30,20,0) ${Math.max(0, edge) + 260 + 500 * tu}px)`;
+
+  /* ---------- scene B */
+  const bu = ease.inOutSine(seg(t, T.turnA, T.end));
+  Bin.style.transform = `scale(${lerp(1.0, 1.035, bu)}) translate(${lerp(8, -10, bu)}px, 0px)`;
+  stampWords(titleP, t, T.title, { dx: 0.55, dy: 0.35 });
+  stampWords(titleB, t, T.title, { dx: -0.1, dy: 0 });
+  titleP.box.style.transform = "translate(5px, 4px)"; // the pink pass is always a hair out of register
+  sec1.style.opacity = 1 - seg(t, T.card + 0.3, T.card + 0.5);
+
+  // helix: draws on, then keeps turning
+  const hu = ease.inOutCubic(seg(t, T.helix, T.helix + 1.0));
+  document.getElementById("helixClipR").setAttribute("width", (HX.x1 - HX.x0 + 60) * hu);
+  const ph = t * 1.4;
+  let dA = "", dB = "";
+  for (let x = HX.x0; x <= HX.x1; x += 6) {
+    const s = Math.sin(HX.k * x + ph);
+    dA += (x === HX.x0 ? "M" : "L") + x + " " + (HX.cy + HX.A * s).toFixed(1);
+    dB += (x === HX.x0 ? "M" : "L") + x + " " + (HX.cy - HX.A * s).toFixed(1);
+  }
+  strandA.setAttribute("d", dA);
+  strandB.setAttribute("d", dB);
+  RUNGS.forEach((r) => {
+    const s = Math.sin(HX.k * r.x + ph);
+    r.el.setAttribute("x1", r.x); r.el.setAttribute("x2", r.x);
+    r.el.setAttribute("y1", HX.cy + HX.A * s * 0.86); r.el.setAttribute("y2", HX.cy - HX.A * s * 0.86);
+  });
+  const hiX = RUNGS[HI].x;
+  const ru2 = ease.outCubic(seg(t, T.ring, T.ring + 0.45));
+  ring.setAttribute("cx", hiX); ring.setAttribute("cy", HX.cy);
+  ring.setAttribute("stroke-dashoffset", 465 * (1 - ru2));
+  ring.setAttribute("transform", `rotate(-90 ${hiX} ${HX.cy})`);
+  const lu = ease.outCubic(seg(t, T.ring + 0.2, T.ring + 0.55));
+  leader.setAttribute("d", `M ${hiX + 52} ${HX.cy + 52} L ${hiX + 52 + 90 * lu} ${HX.cy + 52 + 120 * lu}`);
+  const du = spring(t - T.ring - 0.45, 0.45, 1.2);
+  dec2.style.left = hiX + 120 + "px"; dec2.style.top = HX.cy + 150 + "px";
+  dec2.style.opacity = clamp((t - T.ring - 0.45) / 0.06);
+  dec2.style.transform = `scale(${lerp(1.3, 1, du)})`;
+  dec2sub.style.left = hiX + 124 + "px"; dec2sub.style.top = HX.cy + 222 + "px";
+  dec2sub.style.opacity = clamp((t - T.ring - 0.7) / 0.15);
+
+  bars.forEach((b, i) => {
+    const a = T.bars + i * 0.18, gu = ease.outCubic(seg(t, a, a + 0.8));
+    const w = b.hours * BAR.w * gu;
+    b.tint.setAttribute("width", w); b.dots.setAttribute("width", w);
+    b.lab.style.opacity = clamp((t - a + 0.1) / 0.15);
+    const vu = spring(t - T.barsVal - i * 0.12, 0.4, 1.1);
+    b.val.style.opacity = t > T.barsVal + i * 0.12 ? 1 : 0;
+    b.val.style.left = BAR.x + b.hours * BAR.w + 22 + "px";
+    b.val.style.transform = `scale(${lerp(1.35, 1, vu)})`;
+  });
+  srcLine.style.opacity = clamp((t - T.barsVal - 0.3) / 0.3);
+
+  // the payoff card slides up over the page
+  const cu2 = spring(t - T.card, 0.65, 0.7);
+  card2.style.transform = `translateY(${lerp(1040, 0, cu2)}px) rotate(${lerp(2.5, -0.5, cu2)}deg)`;
+  card2.style.display = t >= T.card ? "block" : "none";
+  const ku = ease.outCubic(seg(t, T.kicker, T.kicker + 0.25));
+  kicker.style.opacity = ku; kicker.style.transform = `translateX(${lerp(-20, 0, ku)}px)`;
+  let filled = 0;
+  fillTimes.forEach((ft, i) => {
+    const u = ease.outCubic(seg(t, ft, ft + 0.12));
+    const frac = i === fillTimes.length - 1 ? GAINED - Math.floor(GAINED) : 1;
+    squares[i].fill.setAttribute("width", Math.max(0, (G.s - 8) * frac * u));
+    squares[i].fill.style.opacity = u > 0 ? 1 : 0;
+    if (u >= 1 && frac === 1) filled++;
+  });
+  // the number is driven by the squares, so it can never drift from them
+  const partial = fillTimes.slice(0, 26).reduce((a, ft) => a + ease.inOutSine(seg(t, ft - 0.015, ft + 0.055)), 0);
+  bigP.set(Math.min(26, partial)); bigB.set(Math.min(26, partial));
+  bigWrap.style.opacity = clamp((t - T.fillA + 0.35) / 0.2);
+  const ch = spring(t - T.chime, 0.5, 1.4);
+  yearsW.style.opacity = clamp((t - T.fillA + 0.3) / 0.2);
+  subW.style.opacity = clamp((t - T.chime) / 0.25);
+  subW.style.transform = `translateY(${lerp(14, 0, ease.outCubic(seg(t, T.chime, T.chime + 0.3)))}px)`;
+  mathW.style.opacity = clamp((t - T.chime - 0.45) / 0.3);
+  bigWrap.style.transform = `scale(${t > T.chime ? lerp(1.06, 1, ch) : 1})`;
+  bigWrap.style.transformOrigin = "0 60%";
+  gridLabel.style.opacity = clamp((t - T.card - 0.4) / 0.3);
+  squares.forEach((s, i) => s.out.setAttribute("opacity", clamp((t - T.card - 0.25 - i * 0.004) / 0.15)));
+};
+window.seek(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cast sheet</title>
+<link rel="stylesheet" href="../lib/stage.css">
+<style>
+  .tag { position: absolute; width: 210px; height: 96px; transform-origin: 105px -200px; }
+  .tag .n { position: absolute; left: 0; width: 210px; top: 30px; text-align: center; font-family: "Bricolage"; font-weight: 800; font-size: 26px; letter-spacing: 0.12em; color: #3b2414; }
+  .tag .s { position: absolute; left: 0; width: 210px; top: 62px; text-align: center; font-family: "Fraunces"; font-style: italic; font-weight: 600; font-size: 19px; color: #6d4a2c; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../lib/stage.js"></script>
+<script>
+const { svg, html, puppet, camera } = PT;
+window.SCENE = { duration: 1, fps: 24, width: 1920, height: 1080 };
+const stage = document.getElementById("stage");
+PT.defs(stage);
+const layers = [];
+const layer = (d, extra = {}) => { const el = html("div", { class: "layer", style: extra }, stage); layers.push([el, d]); return svg("svg", { width: 1920, height: 1080, viewBox: "0 0 1920 1080" }, el); };
+const sd = svg("defs", {}, svg("svg", { width: 0, height: 0, style: "position:absolute" }, stage));
+sd.innerHTML = `<linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d5a9c"/><stop offset="0.55" stop-color="#e98f7a"/><stop offset="1" stop-color="#ffd59a"/></linearGradient>
+  <radialGradient id="sunG"><stop offset="0" stop-color="#fff3c9" stop-opacity="0.9"/><stop offset="1" stop-color="#ffb46b" stop-opacity="0"/></radialGradient>`;
+
+const S = layer(0.3);
+svg("rect", { x: -200, y: -200, width: 2320, height: 1480, fill: "url(#dusk)" }, S);
+svg("circle", { cx: 1380, cy: 640, r: 420, fill: "url(#sunG)" }, S);
+svg("circle", { cx: 1380, cy: 640, r: 96, fill: "#fff0c4", filter: "url(#card1)" }, S);
+[[220, 210, 1], [520, 150, 0.8], [1640, 230, 1.1]].forEach(([x, y, s]) => {
+  const g = svg("g", { filter: "url(#card1)", transform: `translate(${x} ${y}) scale(${s})` }, S);
+  svg("path", { d: "M -110 30 Q -100 -10 -60 -6 Q -40 -44 6 -34 Q 40 -60 76 -24 Q 116 -24 116 30 Z", fill: "#f6d7c6" }, g);
+});
+const H1 = layer(0.5);
+svg("path", { d: "M -200 760 Q 200 600 560 690 T 1300 650 T 2120 700 V 1300 H -200 Z", fill: "#8b6aa0", filter: "url(#card2)" }, H1);
+const H2 = layer(0.7);
+svg("path", { d: "M -200 820 Q 300 720 760 790 T 1600 760 T 2120 800 V 1300 H -200 Z", fill: "#5f7f63", filter: "url(#card2)" }, H2);
+[[260, 790, 1], [1720, 772, 1.2], [1530, 780, 0.8]].forEach(([x, y, s]) => {
+  const g = svg("g", { filter: "url(#card2)", transform: `translate(${x} ${y}) scale(${s})` }, H2);
+  svg("rect", { x: -9, y: -110, width: 18, height: 112, rx: 5, fill: "#5e3829" }, g);
+  svg("circle", { cx: 0, cy: -150, r: 70, fill: "#3f6b4e" }, g);
+  svg("circle", { cx: -38, cy: -118, r: 46, fill: "#46775a" }, g);
+  svg("circle", { cx: 40, cy: -124, r: 50, fill: "#3a6248" }, g);
+});
+const G = layer(0.9);
+svg("path", { d: "M -200 900 Q 600 850 1100 880 T 2120 870 V 1300 H -200 Z", fill: "#7fa06b", filter: "url(#card2)" }, G);
+for (let i = 0; i < 40; i++) svg("path", { d: `M ${i * 52 - 20} ${955 + (i % 3) * 22} q 6 -18 12 0 q 6 -14 12 0`, stroke: "#6a8c58", "stroke-width": 4, fill: "none", "stroke-linecap": "round" }, G);
+
+const P = layer(1.0);
+const cast = [
+  { x: 300, shirt: "#e4572e", hair: "#3a2a22", style: "curly", s: 0.78, hs: 1.38, tag: "YOU · 5", sub: "body 75" },
+  { x: 610, shirt: "#e4572e", hair: "#3a2a22", style: "curly", s: 1.35, tag: "YOU · 30", sub: "body 50" },
+  { x: 920, shirt: "#e4572e", hair: "#e9e4da", style: "thin", s: 1.28, lean: 6, glasses: true, cane: true, tag: "YOU · 80", sub: "the same red, for life" },
+  { x: 1240, shirt: "#2a9d8f", hair: "#2a1f1d", style: "bun", s: 1.3, tag: "PARTNER", sub: "teal" },
+  { x: 1540, shirt: "#f2b134", hair: "#6b3d24", style: "bob", s: 0.9, hs: 1.3, tag: "DAUGHTER", sub: "mustard · age 8" },
+  { x: 1780, shirt: "#7b4b94", hair: "#1c1f2e", style: "short", s: 1.32, tag: "FRIEND", sub: "plum" },
+];
+cast.forEach((c, i) => {
+  if (c.cane) {
+    svg("path", { d: `M ${c.x + 72} 1000 L ${c.x + 66} 790 Q ${c.x + 64} 760 ${c.x + 40} 762`, stroke: "#7b4a36", "stroke-width": 9, fill: "none", "stroke-linecap": "round", filter: "url(#card1)" }, P);
+  }
+  const p = puppet(P, { shirt: c.shirt, hair: c.hair, hairStyle: c.style, glasses: c.glasses });
+  p.pose({ x: c.x, y: 1000, s: c.s, hs: c.hs || 1, lean: c.lean || 0, armF: c.cane ? -24 : -9 - (i % 2) * 6, armB: 9 + (i % 3) * 4, head: [-4, 3, 6, -3, 5, -2][i],
+    look: [0.4, 0.2, 0, -0.3, 0.3, -0.5][i], brow: c.cane ? 6 : 0, mouth: "smile" });
+  const tag = html("div", { class: "tag", style: { left: c.x - 105 + "px", top: 160 + (i % 2) * 40 + "px", transform: `rotate(${[-3, 2, -1.5, 3, -2.5, 1.5][i]}deg)` } }, stage);
+  const s = svg("svg", { width: 210, height: 96, viewBox: "0 0 210 96", style: "position:absolute;inset:0;overflow:visible" }, tag);
+  svg("line", { x1: 105, y1: -300, x2: 105, y2: 14, stroke: "#f1e3c8", "stroke-width": 2, opacity: 0.8 }, s);
+  svg("path", { d: "M 20 8 H 190 L 204 22 V 82 L 190 96 H 20 L 6 82 V 22 Z", fill: "#e8cf9f", filter: "url(#card2)" }, s);
+  svg("circle", { cx: 105, cy: 16, r: 6, fill: "url(#brass)" }, s);
+  html("div", { class: "n", text: c.tag }, tag);
+  html("div", { class: "s", text: c.sub }, tag);
+});
+html("div", { class: "headline", html: "One shirt colour <em>for life.</em>", style: { position: "absolute", left: "0", width: "1920px", top: "40px", textAlign: "center", fontSize: "76px" } }, stage);
+html("div", { class: "vignette" }, stage);
+const gr = PT.grain(stage, 0.22);
+const cam = camera(layers);
+window.seek = (t) => { gr(t); cam({ x: 0, y: 0, z: 1 }); };
+window.seek(0);
+</script>
+</body>
+</html>

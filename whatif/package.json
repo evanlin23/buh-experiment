@@ -1,0 +1,13 @@
+{
+  "name": "whatif-paper-theatre",
+  "private": true,
+  "description": "Frame-exact HTML/SVG scene renderer for the long-form What If videos",
+  "scripts": {
+    "proof": "node render.cjs proof/never_sleep.html ../renders/whatif_proof/video.mp4 --audio proof/never_sleep_audio.py",
+    "stills": "node render.cjs proof/never_sleep.html ../renders/whatif_proof/stills --stills 2.6,5.9,7.05,10.6,15.2"
+  },
+  "dependencies": {
+    "@fontsource/bricolage-grotesque": "5.3.0",
+    "@fontsource/fraunces": "5.3.0"
+  }
+}

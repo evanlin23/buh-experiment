@@ -1,0 +1,55 @@
+/* Paper Theatre: shared look for every What If scene. Tokens are documented in docs/STYLE-WHATIF.md. */
+@font-face { font-family: "Fraunces"; font-weight: 400; font-style: normal; src: url(../node_modules/@fontsource/fraunces/files/fraunces-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Fraunces"; font-weight: 400; font-style: italic; src: url(../node_modules/@fontsource/fraunces/files/fraunces-latin-400-italic.woff2) format("woff2"); }
+@font-face { font-family: "Fraunces"; font-weight: 600; font-style: italic; src: url(../node_modules/@fontsource/fraunces/files/fraunces-latin-600-italic.woff2) format("woff2"); }
+@font-face { font-family: "Fraunces"; font-weight: 700; font-style: normal; src: url(../node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "Fraunces"; font-weight: 900; font-style: normal; src: url(../node_modules/@fontsource/fraunces/files/fraunces-latin-900-normal.woff2) format("woff2"); }
+@font-face { font-family: "Bricolage"; font-weight: 500; src: url(../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Bricolage"; font-weight: 700; src: url(../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "Bricolage"; font-weight: 800; src: url(../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2) format("woff2"); }
+
+:root {
+  /* story world: night */
+  --night-wall: #263457; --night-wall-2: #1f2b49; --night-sky: #121a35; --night-trim: #3b4c7c;
+  /* story world: shared */
+  --cream: #f6ecd9; --kraft: #d4a777; --kraft-dk: #b98a5c; --ink: #1c1f2e; --lamp: #ffb45e; --moon: #f3e7c4;
+  --wood: #7b4a36; --wood-dk: #5e3829; --floor: #3a2e40;
+  /* cast (one card colour per person, for life) */
+  --you: #e4572e; --partner: #2a9d8f; --child: #f2b134; --friend: #7b4b94; --elder: #5aa9e6;
+  /* riso pages */
+  --riso-paper: #f3ebdb; --riso-blue: #0078bf; --riso-pink: #ff48b0; --riso-yellow: #ffd400;
+}
+
+html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); }
+.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; transform-origin: 960px 540px; will-change: transform; }
+.layer > svg { position: absolute; inset: 0; overflow: visible; }
+.scene { position: absolute; inset: 0; overflow: hidden; }
+
+/* Kinetic type: each glyph is its own pop-up tab. */
+.pop { position: absolute; white-space: nowrap; }
+.pop .w { display: inline-block; white-space: nowrap; }
+.pop .g { display: inline-block; transform-origin: 50% 88%; backface-visibility: hidden; }
+.headline { font-family: "Fraunces"; font-weight: 700; color: var(--cream); letter-spacing: -0.01em; line-height: 1.02;
+  text-shadow: 0 2px 0 #d8c7a6, 0 4px 0 #bba987, 0 5px 0 #a8956f, 0 16px 22px rgba(6, 8, 20, 0.55); }
+.headline em { font-style: italic; font-weight: 600; color: var(--lamp); }
+.say { font-family: "Fraunces"; font-style: italic; font-weight: 600; color: var(--cream);
+  text-shadow: 0 2px 0 #cdbb98, 0 12px 18px rgba(6, 8, 20, 0.6); }
+.label { font-family: "Bricolage"; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* Odometer */
+.odo { display: inline-flex; font-family: "Bricolage"; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.odo .col { display: inline-block; overflow: hidden; position: relative; }
+.odo .strip { display: flex; flex-direction: column; will-change: transform; }
+.odo .strip span { display: block; text-align: center; }
+.odo .sep { display: inline-block; }
+
+/* Overlays */
+.grain { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: 0.32; }
+.vignette { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 46%, rgba(0,0,0,0) 55%, rgba(5,6,16,0.55) 100%); }
+
+/* Page turn */
+.leaf { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 0 540px; }
+.leaf .face { position: absolute; inset: 0; backface-visibility: hidden; overflow: hidden; }
+.leaf .back { transform: rotateY(180deg); background: var(--riso-paper); }
