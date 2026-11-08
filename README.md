@@ -7,13 +7,16 @@ Research and tooling for a YouTube Shorts channel in the "satisfying math/physic
 
 | Path | What it is |
 |---|---|
-| `research/niche-analysis.md` | Findings: how the 1M+ hits are built, the market, the idea slate |
-| `tools/av_analyze.py` | Measures any Short: audio onsets vs. on-screen counter ticks, tempo, pitch, loop seam |
-| `research/idea-audit.md` | 22 ideas audited by a blind judge (tested against hidden real Shorts) and a market/fact checker |
-| `shorts/engine.py` | Shared engine: neon stroke compositor with glow/bloom, crisp type, event-placed synth, −14 LUFS master, ffmpeg render |
-| `shorts/ladder.py` | Scale-ladder kit: true-size landmark icons and a log-zoom camera |
-| `shorts/scenes/paper_12_folds.py` | **Built Short:** How long must paper be to fold it 12 times? (+ upload kit) |
-| `prototype/chaos_game_short.py` | First prototype (standalone): the chaos game → Sierpinski triangle |
+| `docs/PIPELINE.md` | **Start here:** the 3-a-day workflow, the QA gate, and the spec format |
+| `shorts/make.py` | Spec → video + cover + QA + upload packaging, in about 75 s |
+| `shorts/specs/*.json` | One file per Short; `published.json` logs what's live |
+| `shorts/ladder_short.py` | The data-driven scale-ladder template |
+| `shorts/engine.py` | Neon compositor, synth and mixer, parallel renderer |
+| `shorts/ladder.py`, `shorts/units.py` | True-size landmark icons, log camera, number formatting |
+| `shorts/qa.py`, `shorts/package.py` | The quality gate and the upload-kit generator |
+| `research/` | Niche analysis, idea audit, pacing study |
+| `tools/av_analyze.py`, `tools/pacing.py` | Measure any Short (yours or a competitor's) |
+| `prototype/chaos_game_short.py` | Standalone prototype for a future "reveal" template |
 
 ## Setup
 
@@ -24,14 +27,14 @@ python3 -m venv .venv
 
 ffmpeg must be on `PATH`. The prototype uses the Inter font from `/usr/share/fonts/opentype/inter/` and falls back to DejaVu Sans.
 
-## Render a scene
+## Make a Short
 
 ```bash
-.venv/bin/python shorts/scenes/paper_12_folds.py renders/paper_12_folds.mp4 --handle @packedbuh
+.venv/bin/python shorts/make.py shorts/specs/paper_12_folds.json --review   # 10 s contact sheet
+.venv/bin/python shorts/make.py shorts/specs/paper_12_folds.json            # full build, ~75 s on 4 cores
 ```
 
-`--preview` (540×960) and `--stills DIR [--at T ...]` work the same as below. A scene is a small class with
-`duration`, `audio(mix)` and `draw(frame, t)`; see `shorts/engine.py` for the API.
+Output goes to `renders/<slug>/`: `video.mp4`, `cover.png`, `sheet.png`, `qa.json`, `upload.md`, `upload.json`. See `docs/PIPELINE.md`.
 
 ## Render the prototype
 

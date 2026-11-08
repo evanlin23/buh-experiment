@@ -27,8 +27,10 @@ def sci(x):
 
 
 def length(m):
-    if m < 1e-3:
+    if m < 1e-4:
         return f"{m * 1e6:.0f} µm" if m >= 1e-6 else f"{m * 1e9:.1f} nm"
+    if m < 1e-3:
+        return f"{m * 1000:.1f} mm"
     if m < 0.01:
         return f"{m * 1000:.1f} mm".replace(".0 ", " ")
     if m < 0.1:
@@ -44,7 +46,10 @@ def length(m):
     if m < 0.1 * LY:
         return _named(m / 1000) + " km"
     y = m / LY
-    return f"{y:.1f} light-years".replace(".0 ", " ") if y < 10 else f"{_named(y)} light-years"
+    if y < 10:
+        return f"{y:.1f} light-years".replace(".0 ", " ")
+    y = float(f"{y:.3g}")          # light-year figures rest on assumptions: 3 significant figures
+    return f"{_named(y)} light-years"
 
 
 def count(x):
